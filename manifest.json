@@ -1,0 +1,17 @@
+{
+  "name": "Los Silos CF — Panel Técnico",
+  "short_name": "Silos CF",
+  "description": "Panel de gestión para el cuerpo técnico de Los Silos CF",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1A3A6B",
+  "theme_color": "#1A3A6B",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231A3A6B'/><text y='.9em' font-size='80' x='10'>⚽</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
