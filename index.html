@@ -467,9 +467,9 @@ function iniciarApp() {
   document.getElementById('partido-cat-label').textContent = cat.nombre;
   cargarUltimos();
   // Cargar próximos partidos solo para F11
-  if (F11_CATEGORIAS.indexOf(equipo) !== -1) {
-    cargarProximosPartidos();
-  }
+if (F11_CATEGORIAS.indexOf(equipo) !== -1 || cfg.rol === 'director deportivo') {
+  cargarProximosPartidos();
+}
   irA('s-inicio');
 }
 
