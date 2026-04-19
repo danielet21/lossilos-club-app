@@ -478,7 +478,13 @@ async function cargarProximosPartidos() {
   try {
     var resp = await fetch(GOOGLE_SCRIPT_URL + '?action=proximos');
     var data = await resp.json();
+    console.log('proximos respuesta:', JSON.stringify(data));  // ← añade esta línea
     if (!data.ok || !data.proximos || !data.proximos.length) return;
+    // ... resto del código
+  } catch(e) {
+    console.log('ERROR proximos:', e);  // ← y esta
+  }
+}
 
     // Guardar primera jornada para acceso directo desde informe_rival.html
     localStorage.setItem('silos_proxima_jornada', data.proximos[0].j_num);
