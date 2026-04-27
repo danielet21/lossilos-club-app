@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -14,14 +15,14 @@
 body{font-family:var(--font);background:var(--gris)}
 
 /* APP BAR */
-.topbar{background:var(--azul);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-.btn-back{width:36px;height:36px;border-radius:50%;border:none;background:#fff2;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--font)}
+.topbar{background:var(–azul);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.btn-back{width:36px;height:36px;border-radius:50%;border:none;background:#fff2;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(–font)}
 .topbar h1{font-size:16px;font-weight:700;flex:1}
-.btn-pdf{background:#fff;color:var(--azul);border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}
+.btn-pdf{background:#fff;color:var(–azul);border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}
 
 .loading{text-align:center;padding:60px;color:#999}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;width:32px;height:32px;border:3px solid #eee;border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:16px}
+.spin{display:inline-block;width:32px;height:32px;border:3px solid #eee;border-top-color:var(–azul);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:16px}
 
 #documento{display:none}
 
@@ -29,76 +30,77 @@ body{font-family:var(--font);background:var(--gris)}
 .doc{width:100%;background:#fff;font-family:Arial,sans-serif}
 
 /* HEADER */
-.doc-header{display:flex;align-items:stretch;background:#fff;border-bottom:4px solid var(--azul)}
-.hdr-logo-left{width:60px;background:var(--azul);display:flex;align-items:center;justify-content:center;padding:8px}
+.doc-header{display:flex;align-items:stretch;background:#fff;border-bottom:4px solid var(–azul)}
+.hdr-logo-left{width:60px;background:var(–azul);display:flex;align-items:center;justify-content:center;padding:8px}
 .hdr-logo-left img{width:44px;height:44px;object-fit:contain}
-.hdr-logo-left .logo-placeholder{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:var(--azul);text-align:center;line-height:1.2}
+.hdr-logo-left .logo-placeholder{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:var(–azul);text-align:center;line-height:1.2}
 .hdr-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px}
-.hdr-club{font-size:15px;font-weight:900;color:var(--azul);letter-spacing:1px;text-transform:uppercase}
-.hdr-semana{font-size:18px;font-weight:900;color:var(--naranja);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.hdr-club{font-size:15px;font-weight:900;color:var(–azul);letter-spacing:1px;text-transform:uppercase}
+.hdr-semana{font-size:18px;font-weight:900;color:var(–naranja);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 .hdr-logo-right{width:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;border-left:2px solid #eee}
 .hdr-logo-right .pat-label{font-size:6px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .hdr-logo-right img{max-width:70px;max-height:40px;object-fit:contain}
 .hdr-logo-right .pat-placeholder{width:70px;height:38px;border:1.5px dashed #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;color:#ccc}
 .hdr-ffcv{width:44px;display:flex;align-items:center;justify-content:center;padding:8px;border-left:1px solid #eee}
 .hdr-ffcv img{width:32px;height:32px;object-fit:contain}
-.hdr-ffcv .ffcv-ph{width:32px;height:32px;background:var(--naranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:900;color:#fff}
+.hdr-ffcv .ffcv-ph{width:32px;height:32px;background:var(–naranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:900;color:#fff}
 
 /* SECCIÓN */
 .seccion{margin:0}
 .sec-titulo{padding:5px 12px;font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#fff;text-align:center}
-.sec-titulo.f11{background:var(--rojo)}
-.sec-titulo.f8{background:var(--verde)}
+.sec-titulo.f11{background:var(–rojo)}
+.sec-titulo.f8{background:var(–verde)}
 
 /* TABLA */
 .tabla{width:100%;border-collapse:collapse}
 .tabla thead th{
-  background:var(--azul);color:#fff;
-  padding:5px 6px;font-size:8px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.5px;
-  border:1px solid #15306b;text-align:center
+background:var(–azul);color:#fff;
+padding:5px 6px;font-size:8px;font-weight:700;
+text-transform:uppercase;letter-spacing:.5px;
+border:1px solid #15306b;text-align:center
 }
 .tabla thead th.th-cat{text-align:left}
 .tabla tbody tr{border-bottom:1px solid #e8ecf0}
 .tabla tbody tr:nth-child(even){background:#f8fafc}
 .tabla tbody tr:hover{background:#eef4fb}
 .tabla td{padding:5px 6px;border-right:1px solid #e8ecf0;vertical-align:middle;font-size:9px}
-.td-cat{font-weight:700;color:var(--azul);font-size:8.5px;line-height:1.3}
+.td-cat{font-weight:700;color:var(–azul);font-size:8.5px;line-height:1.3}
 .td-dia{text-align:center;font-weight:900;font-size:9px;white-space:nowrap;color:#1A1A1A;line-height:1.4}
-.td-dia .fecha{font-size:10px;color:var(--azul)}
-.td-dia .hora{font-size:9px;color:var(--naranja);font-weight:700}
+.td-dia .fecha{font-size:10px;color:var(–azul)}
+.td-dia .hora{font-size:9px;color:var(–naranja);font-weight:700}
 .td-equipo{text-align:center;font-size:12.5px;font-weight:700;color:#333;text-transform:capitalize}
 .td-equipo.nuestro{color:#0A1F3D;font-weight:900;font-size:10px;letter-spacing:.5px;text-transform:uppercase}
 .td-campo{text-align:center;font-size:7.5px;line-height:1.3}
 .td-campo.propio{background:#FFF9C4;color:#856D00;font-weight:700}
-.td-char{text-align:center;font-size:7.5px;font-weight:700;color:var(--verde)}
+.td-char{text-align:center;font-size:7.5px;font-weight:700;color:var(–verde)}
 .td-none{text-align:center;color:#bbb;font-style:italic;font-size:8px}
 
 /* SEPARADOR */
-.sep{height:4px;background:linear-gradient(90deg,var(--rojo),var(--verde))}
+.sep{height:4px;background:linear-gradient(90deg,var(–rojo),var(–verde))}
 
 /* FOOTER */
 .doc-footer{display:flex;justify-content:space-between;padding:5px 12px;background:#f5f5f5;border-top:1px solid #ddd;font-size:7px;color:#999}
 
 /* PRINT */
 @media print{
-  .topbar,.btn-pdf,.loading{display:none!important}
-  body{background:#fff}
-  #documento{display:block!important}
-  .doc{width:100%}
-  @page{size:A4 landscape;margin:5mm 8mm}
-  .tabla td,.tabla th{font-size:7.5px!important;padding:3.5px 4px!important}
-  .td-dia .fecha{font-size:8.5px!important}
-  .td-dia .hora{font-size:8px!important}
-  .tabla tbody tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .sec-titulo,.tabla thead th,.hdr-logo-left,.doc-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.topbar,.btn-pdf,.loading{display:none!important}
+body{background:#fff}
+#documento{display:block!important}
+.doc{width:100%}
+@page{size:A4 landscape;margin:5mm 8mm}
+.tabla td,.tabla th{font-size:7.5px!important;padding:3.5px 4px!important}
+.td-dia .fecha{font-size:8.5px!important}
+.td-dia .hora{font-size:8px!important}
+.tabla tbody tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sec-titulo,.tabla thead th,.hdr-logo-left,.doc-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
 @media screen{
-  #documento{max-width:960px;margin:16px auto;padding:0 12px 40px}
-  .doc{border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.12)}
+#documento{max-width:960px;margin:16px auto;padding:0 12px 40px}
+.doc{border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.12)}
 }
 </style>
+
 </head>
 <body>
 
@@ -118,7 +120,7 @@ body{font-family:var(--font);background:var(--gris)}
 <div id="documento"></div>
 
 <script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
+var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
 
 var EQUIPOS_F11 = [
   {cat:'AMATEUR A - TERCERA FFCV G-8',       key:'amateur'},
@@ -390,6 +392,7 @@ function compartirWhatsApp() {
 </script>
 
 <!-- MODAL EMAIL -->
+
 <div id="modal-email" style="display:none;position:fixed;inset:0;background:#0007;z-index:100;align-items:flex-end;justify-content:center">
   <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;max-width:500px">
     <h2 style="font-size:17px;font-weight:700;margin-bottom:4px">📧 Enviar calendario por email</h2>
