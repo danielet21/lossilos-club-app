@@ -67,8 +67,8 @@ body{font-family:var(--font);background:var(--gris)}
 .td-dia{text-align:center;font-weight:900;font-size:9px;white-space:nowrap;color:#1A1A1A;line-height:1.4}
 .td-dia .fecha{font-size:10px;color:var(--azul)}
 .td-dia .hora{font-size:9px;color:var(--naranja);font-weight:700}
-.td-equipo{text-align:center;font-size:11px;font-weight:700;color:#222}
-.td-equipo.nuestro{color:#0A1F3D;font-weight:900;font-size:11.5px;letter-spacing:.3px}
+.td-equipo{text-align:center;font-size:11.5px;font-weight:700;color:#333;text-transform:capitalize}
+.td-equipo.nuestro{color:#0A1F3D;font-weight:900;font-size:11.5px;letter-spacing:.3px;text-transform:uppercase}
 .td-campo{text-align:center;font-size:7.5px;line-height:1.3}
 .td-campo.propio{background:#FFF9C4;color:#856D00;font-weight:700}
 .td-char{text-align:center;font-size:7.5px;font-weight:700;color:var(--verde)}
@@ -252,8 +252,8 @@ function filaTabla(eq, partido) {
   return '<tr class="' + fin_sem + '">' +
     '<td class="td-cat">' + eq.cat + '</td>' +
     '<td class="td-dia">' + formatFechaHora(partido.fecha, partido.hora) + '</td>' +
-    '<td class="td-equipo">' + local + '</td>' +
-    '<td class="td-equipo">' + visitante + '</td>' +
+    '<td class="td-equipo' + (es_local ? ' nuestro' : '') + '">' + local + '</td>' +
+    '<td class="td-equipo' + (!es_local ? ' nuestro' : '') + '">' + visitante + '</td>' +
     '<td class="' + campo_cls + '">' + (partido.campo||'-') + '</td>' +
     '<td class="td-char">LIGA</td>' +
   '</tr>';
