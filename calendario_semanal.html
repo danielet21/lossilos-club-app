@@ -121,25 +121,25 @@ body{font-family:var(--font);background:var(--gris)}
 var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
 
 var EQUIPOS_F11 = [
-  {cat:'AMATEUR A · TERCERA FFCV G-8',       key:'amateur'},
-  {cat:'JUVENIL A · 3ª FFCV JUVENIL G-10',   key:'juvenil_a'},
-  {cat:'JUVENIL B · 3ª FFCV JUVENIL G-12',   key:'juvenil_b'},
-  {cat:'CADETE A · 1ª REGIONAL G-4',         key:'cadete_a'},
-  {cat:'CADETE B · 2ª REGIONAL G-7',         key:'cadete_b'},
-  {cat:'CADETE FEMENINO · G-2',              key:'cadete_femenino'},
-  {cat:'INFANTIL A · 2ª REGIONAL G-9',       key:'infantil_a'},
-  {cat:'INFANTIL B · 2ª REGIONAL G-8',       key:'infantil_b'},
-  {cat:'INFANTIL FEMENINO · G-4',            key:'infantil_femenino'}
+  {cat:'AMATEUR A - TERCERA FFCV G-8',       key:'amateur'},
+  {cat:'JUVENIL A - 3a FFCV JUVENIL G-10',   key:'juvenil_a'},
+  {cat:'JUVENIL B - 3a FFCV JUVENIL G-12',   key:'juvenil_b'},
+  {cat:'CADETE A - 1a REGIONAL G-4',         key:'cadete_a'},
+  {cat:'CADETE B - 2a REGIONAL G-7',         key:'cadete_b'},
+  {cat:'CADETE FEMENINO G-2',              key:'cadete_femenino'},
+  {cat:'INFANTIL A - 2a REGIONAL G-9',       key:'infantil_a'},
+  {cat:'INFANTIL B - 2a REGIONAL G-8',       key:'infantil_b'},
+  {cat:'INFANTIL FEMENINO G-4',            key:'infantil_femenino'}
 ];
 
 var EQUIPOS_F8 = [
-  {cat:'ALEVÍN A · 2º AÑO',    key:'alevin_a'},
-  {cat:'ALEVÍN B · 2º AÑO',    key:'alevin_b'},
-  {cat:'BENJAMÍN A · 2º AÑO',  key:'benjamin_a'},
-  {cat:'BENJAMÍN B · 1ER AÑO', key:'benjamin_b'},
-  {cat:'PREBENJAMÍN A',        key:'prebenjamin_a'},
-  {cat:'PREBENJAMÍN B',        key:'prebenjamin_b'},
-  {cat:'ALEVÍN FEMENINO',      key:'alevin_femenino'}
+  {cat:'ALEVIN A - 2o ANO',    key:'alevin_a'},
+  {cat:'ALEVIN B - 2o ANO',    key:'alevin_b'},
+  {cat:'BENJAMIN A - 2o ANO',  key:'benjamin_a'},
+  {cat:'BENJAMIN B - 1er ANO', key:'benjamin_b'},
+  {cat:'PREBENJAMIN A',        key:'prebenjamin_a'},
+  {cat:'PREBENJAMIN B',        key:'prebenjamin_b'},
+  {cat:'ALEVIN FEMENINO',      key:'alevin_femenino'}
 ];
 
 var CAMPOS_PROPIOS = ['burjassot','oliveras','polideportivo mpal. burja','pol mpal burja'];
@@ -224,6 +224,19 @@ function getSemanaTexto() {
   return lunes.getDate() + ' - ' + domingo.getDate() + ' ' + m.toUpperCase() + ' ' + domingo.getFullYear();
 }
 
+function esDiaDestacado(fecha_str) {
+  // Devuelve true si es viernes, sábado o domingo
+  try {
+    var parts = (fecha_str||'').split('-');
+    if (parts.length === 3) {
+      var d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+      var dia = d.getDay();
+      return dia === 0 || dia === 5 || dia === 6; // dom, vie, sab
+    }
+  } catch(e) {}
+  return false;
+}
+
 function filaTabla(eq, partido) {
   if (!partido) {
     return '<tr><td class="td-cat">' + eq.cat + '</td>' +
@@ -235,7 +248,8 @@ function filaTabla(eq, partido) {
   var visitante = es_local ? (partido.rival||'') : '<span class="nuestro">LOS SILOS CF-PROMISES VALENCIA</span>';
   var campo_cls = esCampoPropio(partido.campo) ? 'td-campo propio' : 'td-campo';
 
-  return '<tr>' +
+  var fin_sem = esDiaDestacado(partido.fecha) ? ' fin-semana' : '';
+  return '<tr class="' + fin_sem + '">' +
     '<td class="td-cat">' + eq.cat + '</td>' +
     '<td class="td-dia">' + formatFechaHora(partido.fecha, partido.hora) + '</td>' +
     '<td class="td-equipo">' + local + '</td>' +
@@ -248,7 +262,7 @@ function filaTabla(eq, partido) {
 function buildTabla(equipos, datos) {
   var cabeceras = '<thead><tr>' +
     '<th class="th-cat" style="width:20%">CATEGORÍA</th>' +
-    '<th style="width:13%">DÍA · HORA</th>' +
+    '<th style="width:13%">DIA - HORA</th>' +
     '<th style="width:24%">LOCAL</th>' +
     '<th style="width:24%">VISITANTE</th>' +
     '<th style="width:14%">CAMPO / UBICACIÓN</th>' +
@@ -312,7 +326,7 @@ async function cargar() {
 
     // FOOTER
     '<div class="doc-footer">' +
-      '<span>⚽ Los Silos CF — Promises Valencia · Temporada 2025/26 · Burjassot</span>' +
+      '<span>⚽ Los Silos CF — Promises Valencia - Temporada 2025/26 · Burjassot</span>' +
       '<span>Generado: ' + ahora + '</span>' +
     '</div>' +
   '</div>';
