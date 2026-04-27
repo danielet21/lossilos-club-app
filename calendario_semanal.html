@@ -116,7 +116,7 @@ body{font-family:var(--font);background:var(--gris)}
 <div id="documento"></div>
 
 <script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwfyZjXEbEn8kO1lHOxxWWzp-m1yv28OsRinC-UBPMyXxv3YkZFpCDbpxDaqgc6WsJb/exec';
+var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
 
 var EQUIPOS_F11 = [
   {cat:'AMATEUR A · TERCERA FFCV G-8',       key:'amateur'},
@@ -152,17 +152,56 @@ function esCampoPropio(campo) {
 }
 
 function formatFechaHora(fecha, hora) {
-  // fecha: "26-04-2026", hora: "19:00"
-  var parts = (fecha||'').split('-');
-  var diaNom = '';
-  if (parts.length===3) {
-    var d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
-    diaNom = DIAS[d.getDay()] || '';
+  // fecha puede ser "26-04-2026", "2026-04-26", o un objeto Date serializado
+  var txt = (fecha||'').toString().trim();
+  var diaNom = '', dia = '', mes = '';
+
+  // Si contiene letras raras o GMT es un objeto Date — extraer solo la parte numérica
+  if (txt.indexOf('GMT') !== -1 || txt.indexOf('Sun') !== -1 || txt.indexOf('Mon') !== -1 ||
+      txt.indexOf('Tue') !== -1 || txt.indexOf('Wed') !== -1 || txt.indexOf('Thu') !== -1 ||
+      txt.indexOf('Fri') !== -1 || txt.indexOf('Sat') !== -1) {
+    try {
+      var d2 = new Date(txt);
+      if (!isNaN(d2.getTime())) {
+        diaNom = DIAS[d2.getDay()] || '';
+        dia    = d2.getDate().toString();
+        mes    = MESES_NOMBRE[d2.getMonth()]||'';
+      }
+    } catch(e) {}
+  } else {
+    // formato DD-MM-YYYY o YYYY-MM-DD
+    var parts = txt.split(/[-\/]/);
+    if (parts.length === 3) {
+      var dd, mm, yyyy;
+      if (parts[0].length === 4) { yyyy=parts[0]; mm=parts[1]; dd=parts[2]; }
+      else                       { dd=parts[0];   mm=parts[1]; yyyy=parts[2]; }
+      var d3 = new Date(parseInt(yyyy), parseInt(mm)-1, parseInt(dd));
+      if (!isNaN(d3.getTime())) {
+        diaNom = DIAS[d3.getDay()] || '';
+        dia    = dd;
+        mes    = MESES_NOMBRE[parseInt(mm)-1] || '';
+      }
+    }
   }
-  var dia  = parts[0] || '';
-  var mes  = parts[1] ? MESES_NOMBRE[parseInt(parts[1])-1]||'' : '';
+
+  // Hora: limpiar si viene como "Sat Dec 30 1899 19:00:00 GMT..."
+  var horaLimpia = (hora||'').toString().trim();
+  if (horaLimpia.indexOf('GMT') !== -1 || horaLimpia.length > 10) {
+    var match = horaLimpia.match(/(\d{1,2}):(\d{2})/);
+    if (match) {
+      var h = parseInt(match[1]);
+      var m = match[2];
+      // Si año es 1899 la hora es un valor serial de Excel — extraer del string
+      horaLimpia = h + ':' + m;
+    } else {
+      horaLimpia = '';
+    }
+  }
+
+  if (!dia && !diaNom) return '<div class="hora" style="color:#999">-</div>';
+
   return '<div class="fecha">' + diaNom.toUpperCase() + ' ' + dia + ' ' + mes.substring(0,3).toUpperCase() + '</div>' +
-         '<div class="hora">' + (hora||'') + ' h</div>';
+         (horaLimpia ? '<div class="hora">' + horaLimpia + ' h</div>' : '');
 }
 
 function getSemana() {

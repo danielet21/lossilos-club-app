@@ -107,6 +107,18 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
     <button class="filtro-btn" onclick="setFiltro('al-dia',this)">✅ Al día</button>
   </div>
 
+  <!-- WHATSAPP MASIVO -->
+  <div class="sec-label">📢 Aviso masivo de pagos</div>
+  <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:12px;margin-bottom:12px">
+    <p style="font-size:12px;color:var(--texto2);margin-bottom:10px">Genera avisos para todos los pendientes de pago. Se abrirá WhatsApp uno a uno.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <button class="filtro-btn" style="background:var(--azul);color:#fff;border-color:var(--azul)" onclick="masivo('club')">🌐 Todo el club</button>
+      <button class="filtro-btn" style="background:var(--azul2);color:#fff;border-color:var(--azul2)" onclick="masivo('f11')">F11</button>
+      <button class="filtro-btn" style="background:var(--verde);color:#fff;border-color:var(--verde)" onclick="masivo('f8')">F8</button>
+    </div>
+    <div id="masivo-resultado" style="margin-top:10px;font-size:12px;color:var(--texto3)"></div>
+  </div>
+
   <!-- LISTA -->
   <div id="lista-jugadores"><div class="empty"><span class="spin"></span>Cargando...</div></div>
 
@@ -235,8 +247,39 @@ function renderLista() {
   document.getElementById('lista-jugadores').innerHTML = html;
 }
 
+var HORARIO_OFICINA = 'Lunes y Miércoles de 17:30 a 20:00 en Campo de las Oliveras y Martes y Jueves de 17:30 a 20:00 en Polideportivo de Burjassot.';
+var INFO_PAGO = 'Puedes regularizarlo en oficinas o por transferencia bancaria. Te recordamos que el horario de oficina es: ' + HORARIO_OFICINA + ' Estamos a vuestra disposición para cualquier consulta.';
+
+function generarMensaje(jugador) {
+  var meses = jugador.meses_pendientes || [];
+  var n = meses.length;
+  if (n === 0) return '';
+
+  var nombre = (jugador.nombre || '').split(',')[0].trim();
+  var meses_txt = meses.join(' y ');
+
+  if (n === 1) {
+    return 'Hola, os recordamos que el pago de *' + meses_txt + '* está pendiente. ' + INFO_PAGO;
+  } else if (n === 2) {
+    return 'Hola, os recordamos que los pagos de *' + meses_txt + '* están pendientes. ' +
+      'Os rogamos que regularicéis el pago antes del día 15, de lo contrario el jugador no podrá entrenar o jugar hasta regularizar dicho pago. ' + INFO_PAGO;
+  } else {
+    return 'Hola, llevamos *' + n + ' meses* con los pagos pendientes (' + meses_txt + '). ' +
+      'Lamentamos comunicaros que hasta regularizar la situación el jugador *no podrá participar en entrenamientos ni partidos*. ' + INFO_PAGO;
+  }
+}
+
 function enviarWA(tel, msg) {
-  window.open('https://wa.me/' + tel.replace('+','') + '?text=' + msg, '_blank');
+  window.open('https://wa.me/' + tel.replace('+','').replace(/[^0-9]/g,'') + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function enviarWAJugador(jugador) {
+  var tel = (jugador.telefono||'').toString().replace('.0','').replace(/[^0-9+]/g,'');
+  if (!tel) { alert('Sin teléfono registrado'); return; }
+  if (!tel.startsWith('+')) tel = '+34' + tel;
+  var msg = generarMensaje(jugador);
+  if (!msg) { alert('Este jugador está al día'); return; }
+  enviarWA(tel, msg);
 }
 
 function setFiltro(f, btn) {
@@ -244,6 +287,45 @@ function setFiltro(f, btn) {
   document.querySelectorAll('.filtro-btn').forEach(function(b){b.classList.remove('on');});
   btn.classList.add('on');
   renderLista();
+}
+
+var CATS_F11 = ['AMATEUR','JUVENIL','CADETE','INFANTIL'];
+var CATS_F8  = ['ALEVIN','BENJAMIN','PREBENJAMIN','QUERUBIN'];
+
+async function masivo(tipo) {
+  var cats = tipo==='f11' ? CATS_F11 : tipo==='f8' ? CATS_F8 : CATS_F11.concat(CATS_F8);
+  var pendientes = [];
+  document.getElementById('masivo-resultado').textContent = 'Cargando datos...';
+  for (var i = 0; i < cats.length; i++) {
+    try {
+      var r = await fetch(PAGOS_URL+'?action=pagos&categoria='+cats[i]).then(function(r){return r.json();});
+      if (r.ok && r.jugadores) {
+        r.jugadores.forEach(function(j){
+          if (!j.al_dia && j.telefono && j.meses_pendientes && j.meses_pendientes.length>0) pendientes.push(j);
+        });
+      }
+    } catch(e){}
+  }
+  if (!pendientes.length) { document.getElementById('masivo-resultado').textContent='✅ Sin pendientes de pago'; return; }
+  document.getElementById('masivo-resultado').textContent = pendientes.length+' pendientes. Abriendo WhatsApp...';
+  var enviados = 0;
+  for (var j = 0; j < pendientes.length; j++) {
+    var jug = pendientes[j];
+    var tel = (jug.telefono||'').toString().replace('.0','').replace(/[^0-9+]/g,'');
+    if (!tel) continue;
+    if (!tel.startsWith('+')) tel = '+34'+tel;
+    var msg = generarMensaje(jug);
+    if (!msg) continue;
+    await new Promise(function(res){setTimeout(res,800);});
+    window.open('https://wa.me/'+tel.replace('+','')+' ?text='+encodeURIComponent(msg),'_blank');
+    enviados++;
+    document.getElementById('masivo-resultado').textContent = enviados+' de '+pendientes.length+' enviados...';
+  }
+  document.getElementById('masivo-resultado').textContent = '✅ '+enviados+' mensajes generados';
+}
+
+function mostrarError(msg) {
+  document.getElementById('lista-jugadores').innerHTML = '<div class="empty">⚠️ '+(msg||'Error')+'</div>';
 }
 </script>
 </body>

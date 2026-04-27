@@ -269,6 +269,16 @@ body{font-family:var(--font);background:#F0F4F8;color:var(--texto);min-height:10
         <div><h3>Scouting rival</h3><p>Informe de cualquier equipo de la competicion</p></div>
         <span class="chevron">›</span>
       </div>
+      <div class="home-card" id="btn-calendario" style="border-left:3px solid var(--azul2)" onclick="window.location.href='calendario_semanal.html'">
+        <div class="home-card-icon" style="background:var(--azul-c)">📅</div>
+        <div><h3>Calendario semanal</h3><p>Todos los partidos de la semana</p></div>
+        <span class="chevron">›</span>
+      </div>
+      <div class="home-card" id="btn-mensajes-urgentes" style="display:none;border-left:3px solid var(--rojo)" onclick="window.location.href='mensajes_urgentes.html'">
+        <div class="home-card-icon" style="background:var(--rojo-c)">🚨</div>
+        <div><h3>Mensajes urgentes</h3><p>Comunicados a familias F11 y F8</p></div>
+        <span class="chevron">›</span>
+      </div>
     </div>
 
     <div id="menu-director" style="display:none">
@@ -471,7 +481,7 @@ body{font-family:var(--font);background:#F0F4F8;color:var(--texto);min-height:10
 </div>
 
 <script>
-var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwfyZjXEbEn8kO1lHOxxWWzp-m1yv28OsRinC-UBPMyXxv3YkZFpCDbpxDaqgc6WsJb/exec';
+var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
 
 var CATEGORIAS = {
   infantil_a:        {nombre:'Infantil A',       formato:'F11', duracion:35, icono:'⚽', jugadores:[]},
@@ -637,10 +647,12 @@ function cargarMenuEquipo() {
   cargarUltimos();
   cargarPlantillaRemota();
   if (esF11 || esDirector) cargarProximosPartidos();
-  var bU = document.getElementById('btn-usuarios');
-  var bP = document.getElementById('btn-pagos');
-  if (bU) bU.style.display = esSuperAdmin ? '' : 'none';
-  if (bP) bP.style.display = esPagos ? '' : 'none';
+  var bU  = document.getElementById('btn-usuarios');
+  var bP  = document.getElementById('btn-pagos');
+  var bMU = document.getElementById('btn-mensajes-urgentes');
+  if (bU)  bU.style.display  = esSuperAdmin ? '' : 'none';
+  if (bP)  bP.style.display  = esPagos ? '' : 'none';
+  if (bMU) bMU.style.display = (esSuperAdmin || esPresidente || esDirector) ? '' : 'none';
 }
 
 // ── PLANTILLA DESDE FFCV ─────────────────────────────
