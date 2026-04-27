@@ -358,12 +358,42 @@ async function cargar() {
 }
 
 window.addEventListener('DOMContentLoaded', cargar);
+
+function abrirModalEmail() {
+  document.getElementById('modal-email').style.display = 'flex';
+}
+function cerrarModalEmail() {
+  document.getElementById('modal-email').style.display = 'none';
+}
+
+async function enviarEmail() {
+  var email  = document.getElementById('email-dest').value.trim();
+  var nombre = document.getElementById('email-nombre').value.trim();
+  if (!email || !email.includes('@')) { alert('Introduce un email válido'); return; }
+  var btn = event.target;
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  try {
+    var r = await fetch(WEBAPP_URL + '?action=enviar_calendario&email=' + encodeURIComponent(email) + '&nombre=' + encodeURIComponent(nombre)).then(function(r){return r.json();});
+    if (r.ok) { alert('✅ Calendario enviado a ' + email); cerrarModalEmail(); }
+    else { alert('Error: ' + (r.error||'No se pudo enviar')); }
+  } catch(e) { alert('Error de conexión'); }
+  btn.textContent = 'Enviar';
+  btn.disabled = false;
+}
+
+function compartirWhatsApp() {
+  var semana = document.querySelector('.hdr-semana') ? document.querySelector('.hdr-semana').textContent : 'esta semana';
+  var msg = '\u26BD *LOS SILOS CF \u2014 PROMISES VALENCIA*\n\n\uD83D\uDCC5 *' + semana + '*\n\nConsulta el calendario completo de partidos:\nhttps://danielet21.github.io/lossilos-club-app/calendario_semanal.html\n\n_Los Silos CF \u00B7 Burjassot_';
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
 </script>
+
 <!-- MODAL EMAIL -->
-<div id="modal-email" style="display:none;position:fixed;inset:0;background:#0007;z-index:100;display:none;align-items:flex-end;justify-content:center">
-  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:500px;padding-bottom:40px">
+<div id="modal-email" style="display:none;position:fixed;inset:0;background:#0007;z-index:100;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;max-width:500px">
     <h2 style="font-size:17px;font-weight:700;margin-bottom:4px">📧 Enviar calendario por email</h2>
-    <p style="font-size:13px;color:#999;margin-bottom:14px">El calendario de la semana se enviará al destinatario indicado</p>
+    <p style="font-size:13px;color:#999;margin-bottom:14px">El calendario se enviará al destinatario indicado</p>
     <div style="margin-bottom:10px">
       <label style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;display:block;margin-bottom:4px">Email destinatario</label>
       <input type="email" id="email-dest" placeholder="ejemplo@gmail.com" style="width:100%;padding:12px 14px;border:.5px solid #ddd;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
@@ -376,55 +406,5 @@ window.addEventListener('DOMContentLoaded', cargar);
     <button onclick="cerrarModalEmail()" style="width:100%;padding:12px;background:#f0f4f8;color:#666;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">Cancelar</button>
   </div>
 </div>
-
-<script>
-function abrirModalEmail() {
-  document.getElementById('modal-email').style.display = 'flex';
-}
-function cerrarModalEmail() {
-  document.getElementById('modal-email').style.display = 'none';
-}
-
-async function enviarEmail() {
-  var email  = document.getElementById('email-dest').value.trim();
-  var nombre = document.getElementById('email-nombre').value.trim();
-  if (!email || !email.includes('@')) { alert('Introduce un email válido'); return; }
-
-  var btn = event.target;
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
-
-  try {
-    var r = await fetch(WEBAPP_URL + '?action=enviar_calendario&email=' + encodeURIComponent(email) + '&nombre=' + encodeURIComponent(nombre)).then(function(r){return r.json();});
-    if (r.ok) {
-      alert('✅ Calendario enviado a ' + email);
-      cerrarModalEmail();
-    } else {
-      alert('Error: ' + (r.error||'No se pudo enviar'));
-    }
-  } catch(e) {
-    alert('Error de conexión');
-  }
-  btn.textContent = 'Enviar';
-  btn.disabled = false;
-}
-
-function compartirWhatsApp() {
-  var semana = document.querySelector('.hdr-semana') ? document.querySelector('.hdr-semana').textContent : 'esta semana';
-  var msg = '⚽ *LOS SILOS CF — PROMISES VALENCIA*
-
-' +
-    '📅 *' + semana + '*
-
-' +
-    'Consulta el calendario completo de partidos:
-' +
-    'https://danielet21.github.io/lossilos-club-app/calendario_semanal.html
-
-' +
-    '_Los Silos CF · Burjassot_';
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-}
-</script>
 </body>
 </html>
