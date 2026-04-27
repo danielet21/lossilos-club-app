@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -181,135 +182,138 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 
   <div class="body">
 
-    <div class="equipo-card">
-      <div class="equipo-nombre">Los Silos C.F.</div>
-      <div class="equipo-sub" id="equipo-sub">Promises Valencia 'A' — Tercera FFCV</div>
-    </div>
+```
+<div class="equipo-card">
+  <div class="equipo-nombre">Los Silos C.F.</div>
+  <div class="equipo-sub" id="equipo-sub">Promises Valencia 'A' — Tercera FFCV</div>
+</div>
 
-    <!-- ALERTAS -->
-    <div id="sec-alertas" style="display:none">
-      <div class="sec-label">🚨 Alertas y puntos de mejora</div>
-      <div id="alertas-cont"></div>
-    </div>
+<!-- ALERTAS -->
+<div id="sec-alertas" style="display:none">
+  <div class="sec-label">🚨 Alertas y puntos de mejora</div>
+  <div id="alertas-cont"></div>
+</div>
 
-    <!-- RENDIMIENTO GENERAL -->
-    <div class="sec-label">📊 Rendimiento general</div>
-    <div class="stats-grid-4">
-      <div class="stat-box"><div class="stat-val" id="st-j">—</div><div class="stat-lbl">Partidos</div></div>
-      <div class="stat-box"><div class="stat-val grande" id="st-pct">—</div><div class="stat-lbl">% Victorias</div></div>
-      <div class="stat-box"><div class="stat-val verde" id="st-gf">—</div><div class="stat-lbl">GF/partido</div></div>
-      <div class="stat-box"><div class="stat-val rojo" id="st-gc">—</div><div class="stat-lbl">GC/partido</div></div>
-    </div>
-    <div class="stats-grid-4">
-      <div class="stat-box"><div class="stat-val" id="st-v">—</div><div class="stat-lbl">Victorias</div></div>
-      <div class="stat-box"><div class="stat-val" id="st-e">—</div><div class="stat-lbl">Empates</div></div>
-      <div class="stat-box"><div class="stat-val" id="st-d">—</div><div class="stat-lbl">Derrotas</div></div>
-      <div class="stat-box"><div class="stat-val" id="st-ptos">—</div><div class="stat-lbl">Puntos/p</div></div>
-    </div>
-    <div class="stats-grid-4">
-      <div class="stat-box"><div class="stat-val verde" id="st-p0">—</div><div class="stat-lbl">Portería a cero</div></div>
-      <div class="stat-box"><div class="stat-val rojo" id="st-sm">—</div><div class="stat-lbl">Sin marcar</div></div>
-      <div class="stat-box"><div class="stat-val" id="st-am">—</div><div class="stat-lbl">Amarillas/p</div></div>
-      <div class="stat-box"><div class="stat-val" id="st-actas">—</div><div class="stat-lbl">Actas analizadas</div></div>
-    </div>
-    <div class="racha-row" id="racha-propia"></div>
+<!-- RENDIMIENTO GENERAL -->
+<div class="sec-label">📊 Rendimiento general</div>
+<div class="stats-grid-4">
+  <div class="stat-box"><div class="stat-val" id="st-j">—</div><div class="stat-lbl">Partidos</div></div>
+  <div class="stat-box"><div class="stat-val grande" id="st-pct">—</div><div class="stat-lbl">% Victorias</div></div>
+  <div class="stat-box"><div class="stat-val verde" id="st-gf">—</div><div class="stat-lbl">GF/partido</div></div>
+  <div class="stat-box"><div class="stat-val rojo" id="st-gc">—</div><div class="stat-lbl">GC/partido</div></div>
+</div>
+<div class="stats-grid-4">
+  <div class="stat-box"><div class="stat-val" id="st-v">—</div><div class="stat-lbl">Victorias</div></div>
+  <div class="stat-box"><div class="stat-val" id="st-e">—</div><div class="stat-lbl">Empates</div></div>
+  <div class="stat-box"><div class="stat-val" id="st-d">—</div><div class="stat-lbl">Derrotas</div></div>
+  <div class="stat-box"><div class="stat-val" id="st-ptos">—</div><div class="stat-lbl">Puntos/p</div></div>
+</div>
+<div class="stats-grid-4">
+  <div class="stat-box"><div class="stat-val verde" id="st-p0">—</div><div class="stat-lbl">Portería a cero</div></div>
+  <div class="stat-box"><div class="stat-val rojo" id="st-sm">—</div><div class="stat-lbl">Sin marcar</div></div>
+  <div class="stat-box"><div class="stat-val" id="st-am">—</div><div class="stat-lbl">Amarillas/p</div></div>
+  <div class="stat-box"><div class="stat-val" id="st-actas">—</div><div class="stat-lbl">Actas analizadas</div></div>
+</div>
+<div class="racha-row" id="racha-propia"></div>
 
-    <!-- DATOS CLAVE -->
-    <div class="sec-label">🔑 Datos clave</div>
-    <div class="datos-tabla" id="datos-clave"></div>
+<!-- DATOS CLAVE -->
+<div class="sec-label">🔑 Datos clave</div>
+<div class="datos-tabla" id="datos-clave"></div>
 
-    <!-- LOCAL / VISITANTE -->
-    <div class="sec-label">🏟️ Local vs Visitante</div>
-    <div class="lv-grid">
-      <div class="lv-box">
-        <div class="lv-label">🏠 Como local</div>
-        <div class="lv-pct" id="lv-loc-pct">—</div>
-        <div class="lv-sub" id="lv-loc-sub">—</div>
-        <div class="lv-extra" id="lv-loc-extra"></div>
-      </div>
-      <div class="lv-box">
-        <div class="lv-label">✈️ Como visitante</div>
-        <div class="lv-pct" id="lv-vis-pct">—</div>
-        <div class="lv-sub" id="lv-vis-sub">—</div>
-        <div class="lv-extra" id="lv-vis-extra"></div>
-      </div>
-    </div>
+<!-- LOCAL / VISITANTE -->
+<div class="sec-label">🏟️ Local vs Visitante</div>
+<div class="lv-grid">
+  <div class="lv-box">
+    <div class="lv-label">🏠 Como local</div>
+    <div class="lv-pct" id="lv-loc-pct">—</div>
+    <div class="lv-sub" id="lv-loc-sub">—</div>
+    <div class="lv-extra" id="lv-loc-extra"></div>
+  </div>
+  <div class="lv-box">
+    <div class="lv-label">✈️ Como visitante</div>
+    <div class="lv-pct" id="lv-vis-pct">—</div>
+    <div class="lv-sub" id="lv-vis-sub">—</div>
+    <div class="lv-extra" id="lv-vis-extra"></div>
+  </div>
+</div>
 
-    <!-- 1ª vs 2ª PARTE -->
-    <div class="sec-label">⏱️ Primera vs segunda parte</div>
-    <div class="ps-grid">
-      <div class="ps-box">
-        <div class="ps-titulo">1ª Parte</div>
-        <div class="ps-stat"><span>Goles marcados</span><span class="ps-val" style="color:var(--verde)" id="ps-gf1">—</span></div>
-        <div class="ps-stat"><span>Goles encajados</span><span class="ps-val" style="color:var(--rojo)" id="ps-gc1">—</span></div>
-      </div>
-      <div class="ps-box">
-        <div class="ps-titulo">2ª Parte</div>
-        <div class="ps-stat"><span>Goles marcados</span><span class="ps-val" style="color:var(--verde)" id="ps-gf2">—</span></div>
-        <div class="ps-stat"><span>Goles encajados</span><span class="ps-val" style="color:var(--rojo)" id="ps-gc2">—</span></div>
-      </div>
-    </div>
-    <div id="ps-interpretacion" style="margin-bottom:8px"></div>
+<!-- 1ª vs 2ª PARTE -->
+<div class="sec-label">⏱️ Primera vs segunda parte</div>
+<div class="ps-grid">
+  <div class="ps-box">
+    <div class="ps-titulo">1ª Parte</div>
+    <div class="ps-stat"><span>Goles marcados</span><span class="ps-val" style="color:var(--verde)" id="ps-gf1">—</span></div>
+    <div class="ps-stat"><span>Goles encajados</span><span class="ps-val" style="color:var(--rojo)" id="ps-gc1">—</span></div>
+  </div>
+  <div class="ps-box">
+    <div class="ps-titulo">2ª Parte</div>
+    <div class="ps-stat"><span>Goles marcados</span><span class="ps-val" style="color:var(--verde)" id="ps-gf2">—</span></div>
+    <div class="ps-stat"><span>Goles encajados</span><span class="ps-val" style="color:var(--rojo)" id="ps-gc2">—</span></div>
+  </div>
+</div>
+<div id="ps-interpretacion" style="margin-bottom:8px"></div>
 
-    <!-- EVOLUCIÓN -->
-    <div class="sec-label">📈 Evolución temporada</div>
-    <div class="evol-card" id="evolucion-cont"><div class="sin-datos">Sin datos</div></div>
+<!-- EVOLUCIÓN -->
+<div class="sec-label">📈 Evolución temporada</div>
+<div class="evol-card" id="evolucion-cont"><div class="sin-datos">Sin datos</div></div>
 
-    <!-- TRAMOS GOLES -->
-    <div class="sec-label">⏱️ Cuándo marcamos y encajamos</div>
-    <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
-      <div id="tramos-cont"></div>
-    </div>
+<!-- TRAMOS GOLES -->
+<div class="sec-label">⏱️ Cuándo marcamos y encajamos</div>
+<div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
+  <div id="tramos-cont"></div>
+</div>
 
-    <!-- TRAMOS TARJETAS -->
-    <div class="sec-label">🟨 Cuándo nos amonestan</div>
-    <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
-      <div id="tramos-tarj-cont"></div>
-    </div>
-    <div id="tarj-gc-correlacion" style="margin-bottom:8px"></div>
+<!-- TRAMOS TARJETAS -->
+<div class="sec-label">🟨 Cuándo nos amonestan</div>
+<div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
+  <div id="tramos-tarj-cont"></div>
+</div>
+<div id="tarj-gc-correlacion" style="margin-bottom:8px"></div>
 
-    <!-- GOLEADORES -->
-    <div class="sec-label">⚽ Nuestros goleadores</div>
-    <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
-      <div id="goleadores-cont"></div>
-    </div>
+<!-- GOLEADORES -->
+<div class="sec-label">⚽ Nuestros goleadores</div>
+<div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
+  <div id="goleadores-cont"></div>
+</div>
 
-    <!-- JUGADORES POR PRESENCIA -->
-    <div class="sec-label">👥 Jugadores — presencia y rendimiento</div>
-    <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
-      <div id="jugadores-cont"></div>
-    </div>
+<!-- JUGADORES POR PRESENCIA -->
+<div class="sec-label">👥 Jugadores — presencia y rendimiento</div>
+<div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
+  <div id="jugadores-cont"></div>
+</div>
 
-    <!-- DISCIPLINA -->
-    <div class="sec-label">🟨 Disciplina</div>
-    <div class="disc-grid">
-      <div class="disc-box"><div class="disc-n" style="color:var(--amarillo)" id="disc-am">—</div><div class="disc-lbl">Amarillas</div></div>
-      <div class="disc-box"><div class="disc-n" style="color:var(--rojo)" id="disc-ro">—</div><div class="disc-lbl">Rojas</div></div>
-    </div>
-    <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
-      <div id="disc-jugadores"></div>
-    </div>
+<!-- DISCIPLINA -->
+<div class="sec-label">🟨 Disciplina</div>
+<div class="disc-grid">
+  <div class="disc-box"><div class="disc-n" style="color:var(--amarillo)" id="disc-am">—</div><div class="disc-lbl">Amarillas</div></div>
+  <div class="disc-box"><div class="disc-n" style="color:var(--rojo)" id="disc-ro">—</div><div class="disc-lbl">Rojas</div></div>
+</div>
+<div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
+  <div id="disc-jugadores"></div>
+</div>
 
-    <!-- PATRONES -->
-    <div class="sec-label">🔄 Patrones detectados</div>
-    <div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
-      <div id="patrones-cont"></div>
-    </div>
+<!-- PATRONES -->
+<div class="sec-label">🔄 Patrones detectados</div>
+<div style="background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:0 14px">
+  <div id="patrones-cont"></div>
+</div>
 
-    <!-- CONCLUSIONES / ÁREAS DE MEJORA -->
-    <div class="sec-label">🎯 Áreas de mejora y fortalezas</div>
-    <div class="conclusion-card">
-      <div class="conc-titulo">Conclusiones del análisis</div>
-      <div id="conclusiones-cont"></div>
-    </div>
+<!-- CONCLUSIONES / ÁREAS DE MEJORA -->
+<div class="sec-label">🎯 Áreas de mejora y fortalezas</div>
+<div class="conclusion-card">
+  <div class="conc-titulo">Conclusiones del análisis</div>
+  <div id="conclusiones-cont"></div>
+</div>
 
-    <button class="btn-regen" onclick="generarYCargar()">⚡ Regenerar análisis</button>
-    <p style="text-align:center;font-size:11px;color:var(--texto3);margin-top:8px" id="txt-generado"></p>
+<button class="btn-regen" onclick="generarYCargar()">⚡ Regenerar análisis</button>
+<p style="text-align:center;font-size:11px;color:var(--texto3);margin-top:8px" id="txt-generado"></p>
+```
+
   </div>
 </div>
 
 <script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
+var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
 
 window.addEventListener('DOMContentLoaded', cargarTodo);
 
@@ -565,5 +569,6 @@ function mostrarError(msg){
   setText('txt-error',msg);
 }
 </script>
+
 </body>
 </html>

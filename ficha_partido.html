@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -44,7 +45,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
 /* MARCADOR GRANDE */
-.marcador-wrap{background:var(--azul);border-radius:var(--radio);padding:16px;margin-bottom:12px;color:#fff;text-align:center}
+.marcador-wrap{background:var(–azul);border-radius:var(–radio);padding:16px;margin-bottom:12px;color:#fff;text-align:center}
 .marcador-equipos{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .equipo-marcador{flex:1;text-align:center}
 .equipo-nombre{font-size:13px;font-weight:700;opacity:.8}
@@ -59,63 +60,64 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 
 /* CONTADORES TÁCTILES */
 .cnt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.cnt-item{background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:12px;text-align:center}
-.cnt-item-lbl{font-size:11px;color:var(--texto3);text-transform:uppercase;margin-bottom:8px;font-weight:600;letter-spacing:.3px}
+.cnt-item{background:#fff;border-radius:var(–radio-sm);border:.5px solid var(–borde);padding:12px;text-align:center}
+.cnt-item-lbl{font-size:11px;color:var(–texto3);text-transform:uppercase;margin-bottom:8px;font-weight:600;letter-spacing:.3px}
 .cnt-item-ctrl{display:flex;align-items:center;justify-content:center;gap:8px}
-.cnt-btn{width:40px;height:40px;border-radius:50%;border:.5px solid var(--borde);background:var(--gris);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--texto);font-weight:300}
-.cnt-btn:active{background:var(--borde)}
-.cnt-num{font-size:26px;font-weight:800;color:var(--azul2);min-width:36px}
+.cnt-btn{width:40px;height:40px;border-radius:50%;border:.5px solid var(–borde);background:var(–gris);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(–texto);font-weight:300}
+.cnt-btn:active{background:var(–borde)}
+.cnt-num{font-size:26px;font-weight:800;color:var(–azul2);min-width:36px}
 
 /* GOLES */
 .gol-entrada{display:flex;align-items:center;gap:8px;margin-bottom:8px;animation:slideIn .2s ease}
 @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.gol-min-in{width:58px;flex-shrink:0;padding:10px 8px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:14px;text-align:center;outline:none;font-family:var(--font);color:var(--texto);background:#fff}
-.gol-scorer-in{flex:1;padding:10px 12px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:14px;outline:none;font-family:var(--font);color:var(--texto);background:#fff}
-.gol-tipo-in{width:68px;flex-shrink:0;padding:10px 6px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:12px;-webkit-appearance:none;background:#fff;color:var(--texto);outline:none}
-.del-btn{width:30px;height:30px;border-radius:50%;border:.5px solid var(--borde);background:#fff;color:var(--texto3);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.add-btn{width:100%;padding:10px;border:1px dashed var(--borde);border-radius:var(--radio-sm);background:transparent;color:var(--azul2);font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;font-family:var(--font)}
+.gol-min-in{width:58px;flex-shrink:0;padding:10px 8px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:14px;text-align:center;outline:none;font-family:var(–font);color:var(–texto);background:#fff}
+.gol-scorer-in{flex:1;padding:10px 12px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:14px;outline:none;font-family:var(–font);color:var(–texto);background:#fff}
+.gol-tipo-in{width:68px;flex-shrink:0;padding:10px 6px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:12px;-webkit-appearance:none;background:#fff;color:var(–texto);outline:none}
+.del-btn{width:30px;height:30px;border-radius:50%;border:.5px solid var(–borde);background:#fff;color:var(–texto3);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-btn{width:100%;padding:10px;border:1px dashed var(–borde);border-radius:var(–radio-sm);background:transparent;color:var(–azul2);font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;font-family:var(–font)}
 
 /* TARJETAS */
 .tarj-entrada{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .tarj-color{width:20px;height:28px;border-radius:3px;flex-shrink:0}
 .tarj-am{background:#F1C40F}
 .tarj-ro{background:#E74C3C}
-.tarj-jug-in{flex:1;padding:10px 12px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:14px;outline:none;font-family:var(--font);color:var(--texto);background:#fff}
-.tarj-min-in{width:58px;flex-shrink:0;padding:10px 8px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:14px;text-align:center;outline:none;font-family:var(--font);color:var(--texto);background:#fff}
+.tarj-jug-in{flex:1;padding:10px 12px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:14px;outline:none;font-family:var(–font);color:var(–texto);background:#fff}
+.tarj-min-in{width:58px;flex-shrink:0;padding:10px 8px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:14px;text-align:center;outline:none;font-family:var(–font);color:var(–texto);background:#fff}
 .tarj-btns{display:flex;gap:6px;margin-top:4px}
-.btn-tarj{flex:1;padding:11px;border-radius:var(--radio-sm);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)}
-.btn-am{background:var(--amarillo-c);color:var(--amarillo)}
-.btn-ro{background:var(--rojo-c);color:var(--rojo)}
+.btn-tarj{flex:1;padding:11px;border-radius:var(–radio-sm);border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(–font)}
+.btn-am{background:var(–amarillo-c);color:var(–amarillo)}
+.btn-ro{background:var(–rojo-c);color:var(–rojo)}
 
 /* SISTEMA TACTICO */
 .sistema-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.sis-btn{padding:7px 12px;border-radius:20px;border:.5px solid var(--borde);background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:var(--texto2);transition:all .15s}
-.sis-btn.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+.sis-btn{padding:7px 12px;border-radius:20px;border:.5px solid var(–borde);background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:var(–texto2);transition:all .15s}
+.sis-btn.on{background:var(–azul);color:#fff;border-color:var(–azul)}
 
 /* VALORACIÓN */
 .val-slider{width:100%;margin:8px 0}
-.val-display{font-size:32px;font-weight:800;color:var(--azul);text-align:center}
-.val-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--texto3)}
+.val-display{font-size:32px;font-weight:800;color:var(–azul);text-align:center}
+.val-labels{display:flex;justify-content:space-between;font-size:11px;color:var(–texto3)}
 
 /* BOTONES PRINCIPALES */
-.btn-main{width:100%;padding:16px;border-radius:var(--radio);border:none;font-size:17px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:6px}
-.btn-azul{background:var(--azul);color:#fff}
-.btn-verde{background:var(--verde);color:#fff}
-.btn-outline{background:#fff;color:var(--azul);border:1.5px solid var(--azul)}
+.btn-main{width:100%;padding:16px;border-radius:var(–radio);border:none;font-size:17px;font-weight:700;cursor:pointer;font-family:var(–font);margin-top:6px}
+.btn-azul{background:var(–azul);color:#fff}
+.btn-verde{background:var(–verde);color:#fff}
+.btn-outline{background:#fff;color:var(–azul);border:1.5px solid var(–azul)}
 
 /* FOTO ACTA */
-.foto-acta-preview{width:100%;border-radius:var(--radio-sm);border:.5px solid var(--borde);margin-bottom:8px;display:none}
-.btn-foto{width:100%;padding:12px;border:1px dashed var(--borde);border-radius:var(--radio-sm);background:transparent;color:var(--azul2);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.foto-acta-preview{width:100%;border-radius:var(–radio-sm);border:.5px solid var(–borde);margin-bottom:8px;display:none}
+.btn-foto{width:100%;padding:12px;border:1px dashed var(–borde);border-radius:var(–radio-sm);background:transparent;color:var(–azul2);font-size:14px;font-weight:600;cursor:pointer;font-family:var(–font)}
 
 /* ÉXITO */
 .success-wrap{display:none;text-align:center;padding:40px 20px}
-.success-icon{width:72px;height:72px;border-radius:50%;background:var(--verde-c);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px}
+.success-icon{width:72px;height:72px;border-radius:50%;background:var(–verde-c);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 .sending-overlay{display:none;position:fixed;inset:0;background:#0009;align-items:center;justify-content:center;z-index:999}
 .sending-overlay.show{display:flex}
 .sending-box{background:#fff;border-radius:20px;padding:28px 32px;text-align:center}
 </style>
+
 </head>
 <body>
 
@@ -140,6 +142,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 <div class="body" id="form-body">
 
   <!-- MARCADOR EN DIRECTO -->
+
   <div class="marcador-wrap">
     <div class="marcador-equipos">
       <div class="equipo-marcador">
@@ -166,6 +169,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div>
 
   <!-- DATOS DEL PARTIDO -->
+
   <div class="sec-label">Datos del partido</div>
   <div class="card"><div class="card-body">
     <div class="grid-2">
@@ -181,6 +185,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- SISTEMA TÁCTICO -->
+
   <div class="sec-label">Sistema táctico</div>
   <div class="card"><div class="card-body">
     <div class="field">
@@ -212,6 +217,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- GOLES -->
+
   <div class="sec-label">Goles</div>
   <div class="card"><div class="card-body" style="padding-bottom:12px">
     <div id="goles-list"></div>
@@ -220,6 +226,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- TARJETAS -->
+
   <div class="sec-label">Tarjetas</div>
   <div class="card"><div class="card-body" style="padding-bottom:12px">
     <div id="tarjetas-list"></div>
@@ -230,10 +237,12 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- ESTADÍSTICAS -->
+
   <div class="sec-label">Estadísticas</div>
   <div class="cnt-grid" id="stats-grid"></div>
 
   <!-- ANÁLISIS -->
+
   <div class="sec-label">Análisis del entrenador</div>
   <div class="card"><div class="card-body">
     <div class="field"><label>Valoración del partido (1-10)</label>
@@ -246,6 +255,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- FOTO ACTA -->
+
   <div class="sec-label">Foto del acta</div>
   <div class="card"><div class="card-body">
     <img id="foto-preview" class="foto-acta-preview" alt="Acta">
@@ -254,10 +264,11 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
     <p style="font-size:11px;color:var(--texto3);margin-top:6px">Opcional · Se guarda en Drive y se elimina automáticamente a los 7 días</p>
   </div></div>
 
-  <button class="btn-main btn-verde" onclick="guardarFicha()">✅ Guardar ficha</button>
-  <button class="btn-main btn-outline" style="margin-top:8px" onclick="window.open('ficha_partido_print.html','_blank')">🖨️ Imprimir ficha en blanco</button>
+<button class="btn-main btn-verde" onclick="guardarFicha()">✅ Guardar ficha</button>
+<button class="btn-main btn-outline" style="margin-top:8px" onclick="window.open('ficha_partido_print.html','_blank')">🖨️ Imprimir ficha en blanco</button>
 
   <!-- ÉXITO -->
+
   <div class="success-wrap" id="success-wrap">
     <div class="success-icon">⚽</div>
     <h2 style="font-size:20px;font-weight:700;color:var(--verde);margin-bottom:8px">Ficha guardada</h2>
@@ -269,7 +280,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 </div>
 
 <script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
+var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
 var cfg = JSON.parse(localStorage.getItem('silos_sesion') || '{}');
 var goles_nuestros = 0, goles_rival = 0;
 var golCount = 0, tarjCount = 0;
@@ -454,5 +465,6 @@ function resetForm() {
   STATS.forEach(function(s){ cntValues[s[1]]=0; var el=document.getElementById('c-'+s[1]); if(el) el.textContent='0'; });
 }
 </script>
+
 </body>
 </html>

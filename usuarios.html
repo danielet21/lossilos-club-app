@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -34,60 +35,61 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* USUARIO CARD */
-.usuario-card{background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
-.usuario-card:active{background:var(--gris)}
+.usuario-card{background:#fff;border-radius:var(–radio-sm);border:.5px solid var(–borde);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.usuario-card:active{background:var(–gris)}
 .usuario-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
 .av-superadmin{background:#1A3A6B}
 .av-presidente{background:#6C3483}
-.av-director{background:var(--naranja)}
+.av-director{background:var(–naranja)}
 .av-coordinador{background:#117A65}
-.av-entrenador{background:var(--verde)}
+.av-entrenador{background:var(–verde)}
 .usuario-info{flex:1;min-width:0}
 .usuario-nombre{font-size:14px;font-weight:600}
-.usuario-user{font-size:12px;color:var(--texto3)}
+.usuario-user{font-size:12px;color:var(–texto3)}
 .badge-rol{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:3px}
 .badge-superadmin{background:#1A3A6B;color:#fff}
 .badge-presidente{background:#6C3483;color:#fff}
-.badge-director{background:var(--naranja-c);color:var(--naranja)}
+.badge-director{background:var(–naranja-c);color:var(–naranja)}
 .badge-coordinador{background:#D4EFDF;color:#117A65}
-.badge-entrenador{background:var(--verde-c);color:var(--verde)}
+.badge-entrenador{background:var(–verde-c);color:var(–verde)}
 .perms-mini{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
 .perm-dot{width:8px;height:8px;border-radius:50%}
-.perm-on{background:var(--verde)}
+.perm-on{background:var(–verde)}
 .perm-off{background:#ddd}
-.chevron{color:var(--texto3);font-size:20px}
+.chevron{color:var(–texto3);font-size:20px}
 
 /* TOGGLES */
 .toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.toggle-item{display:flex;align-items:center;justify-content:space-between;background:var(--gris);border-radius:var(--radio-sm);padding:10px 12px}
+.toggle-item{display:flex;align-items:center;justify-content:space-between;background:var(–gris);border-radius:var(–radio-sm);padding:10px 12px}
 .toggle-lbl{font-size:13px;font-weight:500}
-.toggle-sub{font-size:10px;color:var(--texto3);margin-top:1px}
+.toggle-sub{font-size:10px;color:var(–texto3);margin-top:1px}
 .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
 .toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:24px;cursor:pointer;transition:.2s}
-.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
-input:checked + .toggle-slider{background:var(--verde)}
+.toggle-slider:before{content:’’;position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked + .toggle-slider{background:var(–verde)}
 input:checked + .toggle-slider:before{transform:translateX(20px)}
 
 /* BOTONES */
-.btn-main{width:100%;padding:14px;border-radius:var(--radio);border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:6px}
-.btn-verde{background:var(--verde);color:#fff}
-.btn-azul{background:var(--azul);color:#fff}
-.btn-rojo{background:var(--rojo-c);color:var(--rojo);border:.5px solid var(--rojo)}
-.btn-gris{background:var(--gris);color:var(--texto2)}
+.btn-main{width:100%;padding:14px;border-radius:var(–radio);border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:var(–font);margin-top:6px}
+.btn-verde{background:var(–verde);color:#fff}
+.btn-azul{background:var(–azul);color:#fff}
+.btn-rojo{background:var(–rojo-c);color:var(–rojo);border:.5px solid var(–rojo)}
+.btn-gris{background:var(–gris);color:var(–texto2)}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#0007;z-index:100;display:flex;align-items:flex-end;justify-content:center}
 .modal-overlay.hidden{display:none}
 .modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 44px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
 .modal h2{font-size:17px;font-weight:700;margin-bottom:2px}
-.modal-sub{font-size:13px;color:var(--texto3);margin-bottom:14px}
+.modal-sub{font-size:13px;color:var(–texto3);margin-bottom:14px}
 
-.info-roles{background:var(--azul-c);border-radius:var(--radio-sm);padding:12px;margin-bottom:12px;font-size:12px;color:var(--azul);line-height:1.8}
-.empty{text-align:center;color:var(--texto3);padding:20px;font-size:13px}
+.info-roles{background:var(–azul-c);border-radius:var(–radio-sm);padding:12px;margin-bottom:12px;font-size:12px;color:var(–azul);line-height:1.8}
+.empty{text-align:center;color:var(–texto3);padding:20px;font-size:13px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;width:20px;height:20px;border:2px solid #eee;border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid #eee;border-top-color:var(–azul);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
 </style>
+
 </head>
 <body>
 
@@ -109,6 +111,7 @@ input:checked + .toggle-slider:before{transform:translateX(20px)}
   </div>
 
   <!-- NUEVO USUARIO -->
+
   <div class="sec-label">Crear nuevo usuario</div>
   <div class="card">
     <div class="grid-2">
@@ -155,12 +158,14 @@ input:checked + .toggle-slider:before{transform:translateX(20px)}
   </div>
 
   <!-- LISTA -->
+
   <div class="sec-label">Usuarios activos</div>
   <div id="lista-usuarios"><div class="empty"><span class="spin"></span>Cargando...</div></div>
 
 </div>
 
 <!-- MODAL EDITAR -->
+
 <div class="modal-overlay hidden" id="modal" onclick="cerrarModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <h2>✏️ Editar usuario</h2>
@@ -209,7 +214,7 @@ input:checked + .toggle-slider:before{transform:translateX(20px)}
 </div>
 
 <script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbznhX5VgsCZPkFoyGLpQ3fUXyWEY0VFMRkMPy7DVsRkIEl4n3zqUbQvfj9Q7k1ltnUj/exec';
+var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
 var cfg = JSON.parse(localStorage.getItem('silos_sesion') || '{}');
 var usuarioEditando = null;
 
@@ -390,5 +395,6 @@ function mostrarError(msg) {
   document.getElementById('lista-usuarios').innerHTML = '<div class="empty">⚠️ '+(msg||'Error')+'</div>';
 }
 </script>
+
 </body>
 </html>
