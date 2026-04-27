@@ -1,413 +1,3078 @@
-<!DOCTYPE html>
+var SS_ID = "1MaztpQmrtMrS36ITkpa7DJCV1h5hgobT3xwkie03KC4";
 
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendario Semanal — Los Silos CF</title>
-<style>
-:root{
-  --azul:#1A3A6B;--azul2:#2E5FAC;--rojo:#C0392B;--verde:#1E7B34;
-  --naranja:#E8771A;--amarillo:#F39C12;--gris:#F0F4F8;
-  --font:Arial,sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--gris)}
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  LOS SILOS CF — Google Apps Script COMPLETO                     ║
+// ║  Version definitiva — pegar todo esto en Apps Script            ║
+// ╚══════════════════════════════════════════════════════════════════╝
 
-/* APP BAR */
-.topbar{background:var(–azul);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-.btn-back{width:36px;height:36px;border-radius:50%;border:none;background:#fff2;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(–font)}
-.topbar h1{font-size:16px;font-weight:700;flex:1}
-.btn-pdf{background:#fff;color:var(–azul);border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}
+// ═══════════════════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════════════════════════════
 
-.loading{text-align:center;padding:60px;color:#999}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;width:32px;height:32px;border:3px solid #eee;border-top-color:var(–azul);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:16px}
+var HOJAS = {
+  entrenamiento: 'Entrenamientos',
+  partido: 'Partidos',
+  log: 'Log'
+};
 
-#documento{display:none}
+var CFG_SCRAPING = {
+  id_temp:        '21',
+  id_modalidad:   '33327',
+  id_competicion: '29509180',
+  id_torneo:      '29509188',
+  nombre_equipo:  "Los Silos C.F. - Promises Valencia 'A'",
+  base_url:       'https://resultadosffcv.isquad.es'
+};
 
-/* ── DOCUMENTO ── */
-.doc{width:100%;background:#fff;font-family:Arial,sans-serif}
+// ═══════════════════════════════════════════════════════════════════════
+// HELPERS COMUNES — van primero para que todo lo demás pueda usarlos
+// ═══════════════════════════════════════════════════════════════════════
 
-/* HEADER */
-.doc-header{display:flex;align-items:stretch;background:#fff;border-bottom:4px solid var(–azul)}
-.hdr-logo-left{width:60px;background:var(–azul);display:flex;align-items:center;justify-content:center;padding:8px}
-.hdr-logo-left img{width:44px;height:44px;object-fit:contain}
-.hdr-logo-left .logo-placeholder{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:var(–azul);text-align:center;line-height:1.2}
-.hdr-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px}
-.hdr-club{font-size:15px;font-weight:900;color:var(–azul);letter-spacing:1px;text-transform:uppercase}
-.hdr-semana{font-size:18px;font-weight:900;color:var(–naranja);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
-.hdr-logo-right{width:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;border-left:2px solid #eee}
-.hdr-logo-right .pat-label{font-size:6px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.hdr-logo-right img{max-width:70px;max-height:40px;object-fit:contain}
-.hdr-logo-right .pat-placeholder{width:70px;height:38px;border:1.5px dashed #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;color:#ccc}
-.hdr-ffcv{width:44px;display:flex;align-items:center;justify-content:center;padding:8px;border-left:1px solid #eee}
-.hdr-ffcv img{width:32px;height:32px;object-fit:contain}
-.hdr-ffcv .ffcv-ph{width:32px;height:32px;background:var(–naranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:900;color:#fff}
-
-/* SECCIÓN */
-.seccion{margin:0}
-.sec-titulo{padding:5px 12px;font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#fff;text-align:center}
-.sec-titulo.f11{background:var(–rojo)}
-.sec-titulo.f8{background:var(–verde)}
-
-/* TABLA */
-.tabla{width:100%;border-collapse:collapse}
-.tabla thead th{
-background:var(–azul);color:#fff;
-padding:5px 6px;font-size:8px;font-weight:700;
-text-transform:uppercase;letter-spacing:.5px;
-border:1px solid #15306b;text-align:center
-}
-.tabla thead th.th-cat{text-align:left}
-.tabla tbody tr{border-bottom:1px solid #e8ecf0}
-.tabla tbody tr:nth-child(even){background:#f8fafc}
-.tabla tbody tr:hover{background:#eef4fb}
-.tabla td{padding:5px 6px;border-right:1px solid #e8ecf0;vertical-align:middle;font-size:9px}
-.td-cat{font-weight:700;color:var(–azul);font-size:8.5px;line-height:1.3}
-.td-dia{text-align:center;font-weight:900;font-size:9px;white-space:nowrap;color:#1A1A1A;line-height:1.4}
-.td-dia .fecha{font-size:10px;color:var(–azul)}
-.td-dia .hora{font-size:9px;color:var(–naranja);font-weight:700}
-.td-equipo{text-align:center;font-size:12.5px;font-weight:700;color:#333;text-transform:capitalize}
-.td-equipo.nuestro{color:#0A1F3D;font-weight:900;font-size:10px;letter-spacing:.5px;text-transform:uppercase}
-.td-campo{text-align:center;font-size:7.5px;line-height:1.3}
-.td-campo.propio{background:#FFF9C4;color:#856D00;font-weight:700}
-.td-char{text-align:center;font-size:7.5px;font-weight:700;color:var(–verde)}
-.td-none{text-align:center;color:#bbb;font-style:italic;font-size:8px}
-
-/* SEPARADOR */
-.sep{height:4px;background:linear-gradient(90deg,var(–rojo),var(–verde))}
-
-/* FOOTER */
-.doc-footer{display:flex;justify-content:space-between;padding:5px 12px;background:#f5f5f5;border-top:1px solid #ddd;font-size:7px;color:#999}
-
-/* PRINT */
-@media print{
-.topbar,.btn-pdf,.loading{display:none!important}
-body{background:#fff}
-#documento{display:block!important}
-.doc{width:100%}
-@page{size:A4 landscape;margin:5mm 8mm}
-.tabla td,.tabla th{font-size:7.5px!important;padding:3.5px 4px!important}
-.td-dia .fecha{font-size:8.5px!important}
-.td-dia .hora{font-size:8px!important}
-.tabla tbody tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.sec-titulo,.tabla thead th,.hdr-logo-left,.doc-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+function obtenerOCrearHoja(nombre) {
+  var ss   = SpreadsheetApp.openById(SS_ID);
+  var hoja = ss.getSheetByName(nombre);
+  if (!hoja) hoja = ss.insertSheet(nombre);
+  return hoja;
 }
 
-@media screen{
-#documento{max-width:960px;margin:16px auto;padding:0 12px 40px}
-.doc{border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.12)}
-}
-</style>
-
-</head>
-<body>
-
-<div class="topbar" id="topbar">
-  <button class="btn-back" onclick="history.back()">&#8249;</button>
-  <h1>📅 Calendario semanal</h1>
-  <button class="btn-pdf" onclick="window.print()">📥 PDF</button>
-  <button class="btn-pdf" style="background:var(--verde);color:#fff;margin-left:6px" onclick="abrirModalEmail()">📧 Email</button>
-  <button class="btn-pdf" style="background:#25D366;color:#fff;margin-left:6px" onclick="compartirWhatsApp()">💬 WA</button>
-</div>
-
-<div class="loading" id="loading">
-  <div><div class="spin"></div></div>
-  Cargando partidos de la semana...
-</div>
-
-<div id="documento"></div>
-
-<script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
-
-var EQUIPOS_F11 = [
-  {cat:'AMATEUR A - TERCERA FFCV G-8',       key:'amateur'},
-  {cat:'JUVENIL A - 3a FFCV JUVENIL G-10',   key:'juvenil_a'},
-  {cat:'JUVENIL B - 3a FFCV JUVENIL G-12',   key:'juvenil_b'},
-  {cat:'CADETE A - 1a REGIONAL G-4',         key:'cadete_a'},
-  {cat:'CADETE B - 2a REGIONAL G-7',         key:'cadete_b'},
-  {cat:'CADETE FEMENINO G-2',              key:'cadete_femenino'},
-  {cat:'INFANTIL A - 2a REGIONAL G-9',       key:'infantil_a'},
-  {cat:'INFANTIL B - 2a REGIONAL G-8',       key:'infantil_b'},
-  {cat:'INFANTIL FEMENINO G-4',            key:'infantil_femenino'}
-];
-
-var EQUIPOS_F8 = [
-  {cat:'ALEVIN A - 2o ANO',    key:'alevin_a'},
-  {cat:'ALEVIN B - 2o ANO',    key:'alevin_b'},
-  {cat:'BENJAMIN A - 2o ANO',  key:'benjamin_a'},
-  {cat:'BENJAMIN B - 1er ANO', key:'benjamin_b'},
-  {cat:'PREBENJAMIN A',        key:'prebenjamin_a'},
-  {cat:'PREBENJAMIN B',        key:'prebenjamin_b'},
-  {cat:'ALEVIN FEMENINO',      key:'alevin_femenino'}
-];
-
-var CAMPOS_PROPIOS = ['burjassot','oliveras','polideportivo mpal. burja','pol mpal burja'];
-var DIAS = {0:'Domingo',1:'Lunes',2:'Martes',3:'Miércoles',4:'Jueves',5:'Viernes',6:'Sábado'};
-var MESES_NOMBRE = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-function esCampoPropio(campo) {
-  if (!campo) return false;
-  var c = campo.toLowerCase();
-  return CAMPOS_PROPIOS.some(function(p){return c.indexOf(p)!=-1;}) ||
-         c.indexOf('burjassot')!==-1 || c.indexOf('oliveras')!==-1;
+function formatearCabecera(hoja) {
+  var cab = hoja.getRange(1, 1, 1, hoja.getLastColumn());
+  cab.setBackground('#1A3A6B');
+  cab.setFontColor('#FFFFFF');
+  cab.setFontWeight('bold');
+  cab.setFontSize(10);
+  hoja.setFrozenRows(1);
 }
 
-function formatFechaHora(fecha, hora) {
-  // fecha puede ser "26-04-2026", "2026-04-26", o un objeto Date serializado
-  var txt = (fecha||'').toString().trim();
-  var diaNom = '', dia = '', mes = '';
+function formatarAsistencia(json) {
+  if (!json) return '';
+  try {
+    var obj = typeof json === 'string' ? JSON.parse(json) : json;
+    var resultado = [];
+    for (var k in obj) {
+      if (obj[k] !== 'presente') resultado.push(k + ': ' + obj[k]);
+    }
+    return resultado.length > 0 ? resultado.join(' | ') : 'Todos presentes';
+  } catch(e) { return json; }
+}
 
-  // Si contiene letras raras o GMT es un objeto Date — extraer solo la parte numérica
-  if (txt.indexOf('GMT') !== -1 || txt.indexOf('Sun') !== -1 || txt.indexOf('Mon') !== -1 ||
-      txt.indexOf('Tue') !== -1 || txt.indexOf('Wed') !== -1 || txt.indexOf('Thu') !== -1 ||
-      txt.indexOf('Fri') !== -1 || txt.indexOf('Sat') !== -1) {
-    try {
-      var d2 = new Date(txt);
-      if (!isNaN(d2.getTime())) {
-        diaNom = DIAS[d2.getDay()] || '';
-        dia    = d2.getDate().toString();
-        mes    = MESES_NOMBRE[d2.getMonth()]||'';
+function logRegistro(tipo, categoria, entrenador) {
+  var hoja = obtenerOCrearHoja(HOJAS.log);
+  if (hoja.getLastRow() === 0) hoja.appendRow(['Timestamp','Tipo','Categoria','Entrenador']);
+  hoja.appendRow([new Date(), tipo, categoria, entrenador]);
+}
+
+function fetchUrl(url) {
+  var options = {
+    'method': 'get',
+    'headers': {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36',
+      'Accept-Language': 'es-ES,es;q=0.9'
+    },
+    'muteHttpExceptions': true,
+    'followRedirects': true
+  };
+  var resp = UrlFetchApp.fetch(url, options);
+  if (resp.getResponseCode() !== 200) {
+    throw new Error('HTTP ' + resp.getResponseCode() + ' para ' + url);
+  }
+  return resp.getContentText('UTF-8');
+}
+
+function extraerFilasTabla(html) {
+  var filas = [];
+  var fila_re = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  var celda_re = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
+  var tag_re = /<[^>]+>/g;
+  var fila_m;
+  while ((fila_m = fila_re.exec(html)) !== null) {
+    var celdas = [];
+    var celda_m;
+    celda_re.lastIndex = 0;
+    while ((celda_m = celda_re.exec(fila_m[1])) !== null) {
+      celdas.push(limpiarTexto(celda_m[1].replace(tag_re, ' ')));
+    }
+    if (celdas.length > 0) filas.push(celdas);
+  }
+  return filas;
+}
+
+function limpiarTexto(txt) {
+  return (txt || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+    .replace(/&apos;/g, "'").replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
+    .replace(/&#039;/g, "'").replace(/&aacute;/g, 'a').replace(/&eacute;/g, 'e')
+    .replace(/&iacute;/g, 'i').replace(/&oacute;/g, 'o').replace(/&uacute;/g, 'u')
+    .replace(/&ntilde;/g, 'n').replace(/&Ntilde;/g, 'N').replace(/&uuml;/g, 'u')
+    .replace(/&Aacute;/g, 'A').replace(/&Eacute;/g, 'E').replace(/&Uacute;/g, 'U');
+}
+
+function extraerGxP(s, J) {
+  var m = (s || '').match(/^(\d+)%$/);
+  if (!m) return 0;
+  var digits = m[1];
+  for (var len = 2; len >= 1; len--) {
+    if (digits.length > len) {
+      var pct = parseInt(digits.slice(-len));
+      var N = Math.round(pct * J / 100);
+      if (String(N) + digits.slice(-len) === digits) return N;
+    }
+  }
+  return Math.round(parseInt(digits) * J / 100);
+}
+
+function extraerGoles(s, J) {
+  var m = (s || '').match(/(\d+)(?:\.\d+)?\s*gol/);
+  if (!m) return 0;
+  var str = m[1];
+  return str.length >= 2 ? parseInt(str.slice(0, -1)) : parseInt(str);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ENDPOINTS WEB (doPost y doGet)
+// ═══════════════════════════════════════════════════════════════════════
+
+function doPost(e) {
+  try {
+    var datos = JSON.parse(e.postData.contents);
+    var tipo  = datos.tipo || 'desconocido';
+
+    if (tipo === 'entrenamiento') {
+      guardarEntrenamiento(datos);
+      logRegistro(tipo, datos.categoria, datos.entrenador);
+      return jsonResponse({ok: true});
+    }
+    if (tipo === 'partido') {
+      guardarPartido(datos);
+      // Subir foto ficha si viene adjunta
+      if (datos.foto_base64 && datos.foto_base64.length > 100) {
+        var nombre = 'ficha_J' + (datos.jornada||'?') + '_' + datos.equipo + '_' + Date.now() + '.jpg';
+        var res = subirFotoDrive(datos.foto_base64, nombre, DRIVE_FICHAS_FOLDER);
+        if (res.ok) {
+          // Guardar URL en hoja Partidos (última columna extra)
+          var hP = SpreadsheetApp.openById(SS_ID).getSheetByName('Partidos');
+          if (hP) { var last = hP.getLastRow(); hP.getRange(last, hP.getLastColumn()+1).setValue(res.url); }
+        }
       }
-    } catch(e) {}
+      logRegistro(tipo, datos.categoria, datos.entrenador);
+      return jsonResponse({ok: true});
+    }
+    if (tipo === 'scouting') {
+      guardarScoutingManual(datos);
+      return jsonResponse({ok: true});
+    }
+    if (tipo === 'foto_scouting') {
+      var nombre_s = 'scouting_J' + (datos.jornada||'?') + '_' + Date.now() + '.jpg';
+      var res_s = subirFotoDrive(datos.foto_base64, nombre_s, DRIVE_FOLDER_NAME);
+      if (res_s.ok) {
+        // Guardar URL en scouting cache
+        var sc = getScoutingJornada(parseInt(datos.jornada)||0);
+        var sc_data = sc.ok ? sc.data : {jornada: datos.jornada};
+        sc_data.foto_url = res_s.url;
+        guardarScoutingManual(sc_data);
+      }
+      return jsonResponse(res_s);
+    }
+    if (tipo === 'crear_usuario') {
+      return crearUsuario(datos);
+    }
+    if (tipo === 'actualizar_usuario') {
+      return actualizarUsuario(datos);
+    }
+    if (tipo === 'eliminar_usuario') {
+      return eliminarUsuario(datos.usuario);
+    }
+    if (tipo === 'actualizar_jugador') {
+      return actualizarJugador(datos.categoria, datos.nombre, datos.estado, datos.notas);
+    }
+    if (tipo === 'añadir_jugador') {
+      return añadirJugador(datos.categoria, datos.nombre, datos.estado, datos.notas);
+    }
+    if (tipo === 'foto_ficha') {
+      var nombre_f = 'ficha_J' + (datos.jornada||'?') + '_' + Date.now() + '.jpg';
+      var res_f = subirFotoDrive(datos.foto_base64, nombre_f, DRIVE_FICHAS_FOLDER);
+      return jsonResponse(res_f);
+    }
+
+    logRegistro(tipo, datos.categoria || '', datos.entrenador || '');
+    return jsonResponse({ok: true});
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok: false, error: err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  var action = e.parameter.action || '';
+
+  if (action === 'informe_rival') {
+    var j_num = parseInt(e.parameter.jornada || '0');
+    var cat4  = e.parameter.categoria || '';
+    return cat4 ? getInformeRivalCacheEquipo(cat4, j_num) : getInformeRivalCache(j_num);
+  }
+
+  if (action === 'generar_informe') {
+    return generarInformes();
+  }
+
+  if (action === 'proximos') {
+    var cat3 = e.parameter.categoria || '';
+    return cat3 ? getProximosPartidosEquipo(cat3) : getProximosPartidos();
+  }
+
+  if (action === 'informe_propio') {
+    var cat5 = e.parameter.categoria || '';
+    return cat5 ? getInformePropioEquipo_get(cat5) : getInformePropio();
+  }
+
+  if (action === 'usuarios') {
+    return getUsuarios();
+  }
+
+  if (action === 'plantilla') {
+    var cat6 = e.parameter.categoria || 'amateur';
+    return getPlantillaCompleta(cat6);
+  }
+
+  if (action === 'scouting_jornada') {
+    var jn = parseInt(e.parameter.jornada||'0');
+    return jsonResponse(getScoutingJornada(jn));
+  }
+
+  if (action === 'enviar_calendario') {
+    var email_dest  = e.parameter.email  || '';
+    var nombre_dest = e.parameter.nombre || 'Director';
+    if (!email_dest) return jsonResponse({ok:false, error:'Email requerido'});
+    try {
+      enviarCalendarioSemanal([email_dest]);
+      return jsonResponse({ok:true, email:email_dest});
+    } catch(ex) {
+      Logger.log('ERROR enviar_calendario: ' + ex.message + ' | stack: ' + ex.stack);
+      return jsonResponse({ok:false, error:ex.message, stack:ex.stack});
+    }
+  }
+
+  if (action === 'anomalias_propias') {
+    var cat = e.parameter.categoria || 'amateur';
+    return getAnomaliasPropias(cat);
+  }
+
+  if (action === 'stats_propias') {
+    var cat2 = e.parameter.categoria || 'amateur';
+    return getStatsPropias(cat2);
+  }
+
+  var usuario    = e.parameter.usuario    || '';
+  var contrasena = e.parameter.contrasena || '';
+  var resultado  = verificarLogin(usuario, contrasena);
+  return jsonResponse(resultado);
+}
+
+function getInformeRivalCache(j_num) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Rival_Cache');
+    if (!hoja) return jsonResponse({ok: false, error: 'Sin datos. Genera el informe primero.'});
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if (parseInt(datos[i][0]) === j_num) {
+        return jsonResponse({ok: true, data: JSON.parse(datos[i][1]), generado: String(datos[i][2])});
+      }
+    }
+    return jsonResponse({ok: false, error: 'Sin informe para J' + j_num + '. Genera el informe primero.'});
+  } catch(err) {
+    return jsonResponse({ok: false, error: err.message});
+  }
+}
+
+function generarInformes() {
+  try {
+    scrapingCompleto();
+    return jsonResponse({ok: true, mensaje: 'Informes generados correctamente'});
+  } catch(err) {
+    return jsonResponse({ok: false, error: err.message});
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════════════════
+
+// MÓDULOS DE PERMISOS
+var MODULOS = ['todos_equipos','informes','entrenamientos','partidos','plantilla','pagos','usuarios','estadisticas','scouting'];
+
+// Permisos por defecto según rol base
+var PERMISOS_DEFAULT = {
+  superadmin: {todos_equipos:true,  informes:true,  entrenamientos:true,  partidos:true,  plantilla:true,  pagos:true,  usuarios:true,  estadisticas:true,  scouting:true},
+  presidente: {todos_equipos:true,  informes:true,  entrenamientos:true,  partidos:true,  plantilla:true,  pagos:true,  usuarios:false, estadisticas:true,  scouting:true},
+  director:   {todos_equipos:true,  informes:true,  entrenamientos:true,  partidos:true,  plantilla:true,  pagos:false, usuarios:false, estadisticas:true,  scouting:true},
+  entrenador: {todos_equipos:false, informes:false, entrenamientos:true,  partidos:true,  plantilla:true,  pagos:false, usuarios:false, estadisticas:true,  scouting:false}
+};
+
+function verificarLogin(usuario, contrasena) {
+  var ss    = SpreadsheetApp.openById(SS_ID);
+  var hoja  = ss.getSheetByName('Usuarios');
+  if (!hoja) return {ok:false, error:'Sin hoja Usuarios'};
+  var datos = hoja.getDataRange().getValues();
+  var cab   = datos[0];
+  var col_perms = cab.indexOf('permisos');
+
+  for (var i = 1; i < datos.length; i++) {
+    if (!datos[i][0]) continue;
+    if (datos[i][0].toString().toLowerCase() === usuario.toLowerCase() &&
+        datos[i][1].toString() === contrasena) {
+      var rol    = (datos[i][4] || 'entrenador').toString().toLowerCase();
+      // Cargar permisos personalizados si existen, si no usar los del rol
+      var perms  = JSON.parse(JSON.stringify(PERMISOS_DEFAULT[rol] || PERMISOS_DEFAULT.entrenador));
+      if (col_perms !== -1 && datos[i][col_perms]) {
+        try {
+          var perms_custom = JSON.parse(datos[i][col_perms].toString());
+          // Merge: los permisos personalizados sobreescriben los del rol
+          MODULOS.forEach(function(m) {
+            if (perms_custom[m] !== undefined) perms[m] = perms_custom[m];
+          });
+        } catch(ex) {}
+      }
+      return {
+        ok:       true,
+        equipo:   datos[i][2].toString(),
+        nombre:   datos[i][3].toString(),
+        rol:      rol,
+        permisos: perms
+      };
+    }
+  }
+  return {ok:false};
+}
+
+// ── GESTIÓN DE USUARIOS ──────────────────────────────────────────────
+
+function getUsuarios() {
+  try {
+    var ss    = SpreadsheetApp.openById(SS_ID);
+    var hoja  = ss.getSheetByName('Usuarios');
+    if (!hoja || hoja.getLastRow() < 2) return jsonResponse({ok:true, usuarios:[]});
+    var datos = hoja.getDataRange().getValues();
+    var usuarios = [];
+    for (var i = 1; i < datos.length; i++) {
+      if (!datos[i][0]) continue;
+      var perms_u = {};
+      try { if (datos[i][5]) perms_u = JSON.parse(datos[i][5].toString()); } catch(ex) {}
+      usuarios.push({
+        usuario:  datos[i][0].toString(),
+        equipo:   datos[i][2].toString(),
+        nombre:   datos[i][3].toString(),
+        rol:      datos[i][4].toString(),
+        permisos: perms_u
+      });
+    }
+    return jsonResponse({ok:true, usuarios:usuarios});
+  } catch(e) { return jsonResponse({ok:false, error:e.message}); }
+}
+
+function crearUsuario(datos) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Usuarios');
+    if (!hoja) hoja = ss.insertSheet('Usuarios');
+    if (hoja.getLastRow() === 0) {
+      hoja.appendRow(['usuario','contrasena','equipo','nombre','rol']);
+      formatearCabecera(hoja);
+    }
+    // Verificar que no existe
+    var filas = hoja.getDataRange().getValues();
+    for (var i = 1; i < filas.length; i++) {
+      if (filas[i][0].toString().toLowerCase() === datos.usuario.toLowerCase()) {
+        return jsonResponse({ok:false, error:'El usuario ya existe'});
+      }
+    }
+    // Asegurar cabecera con columna permisos
+    if (hoja.getLastRow() === 1) {
+      var cab_actual = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+      if (cab_actual.indexOf('permisos') === -1) {
+        hoja.getRange(1, hoja.getLastColumn()+1).setValue('permisos');
+      }
+    }
+    var perms_json = JSON.stringify(datos.permisos || {});
+    hoja.appendRow([datos.usuario, datos.contrasena, datos.equipo||'', datos.nombre||'', datos.rol||'entrenador', perms_json]);
+    Logger.log('Usuario creado: ' + datos.usuario + ' rol=' + datos.rol);
+    return jsonResponse({ok:true});
+  } catch(e) { return jsonResponse({ok:false, error:e.message}); }
+}
+
+function actualizarUsuario(datos) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Usuarios');
+    if (!hoja) return jsonResponse({ok:false, error:'Sin hoja Usuarios'});
+    var filas = hoja.getDataRange().getValues();
+    for (var i = 1; i < filas.length; i++) {
+      if (filas[i][0].toString().toLowerCase() === datos.usuario.toLowerCase()) {
+        if (datos.contrasena) hoja.getRange(i+1, 2).setValue(datos.contrasena);
+        if (datos.equipo !== undefined) hoja.getRange(i+1, 3).setValue(datos.equipo);
+        if (datos.nombre)    hoja.getRange(i+1, 4).setValue(datos.nombre);
+        if (datos.rol)       hoja.getRange(i+1, 5).setValue(datos.rol);
+        // Guardar permisos personalizados en columna 6
+        if (datos.permisos !== undefined) {
+          var cab_h = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+          var col_p = cab_h.indexOf('permisos') + 1;
+          if (col_p === 0) {
+            col_p = hoja.getLastColumn() + 1;
+            hoja.getRange(1, col_p).setValue('permisos');
+          }
+          hoja.getRange(i+1, col_p).setValue(JSON.stringify(datos.permisos));
+        }
+        return jsonResponse({ok:true});
+      }
+    }
+    return jsonResponse({ok:false, error:'Usuario no encontrado'});
+  } catch(e) { return jsonResponse({ok:false, error:e.message}); }
+}
+
+function eliminarUsuario(usuario) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Usuarios');
+    if (!hoja) return jsonResponse({ok:false, error:'Sin hoja Usuarios'});
+    var filas = hoja.getDataRange().getValues();
+    for (var i = 1; i < filas.length; i++) {
+      if (filas[i][0].toString().toLowerCase() === usuario.toLowerCase()) {
+        hoja.deleteRow(i+1);
+        return jsonResponse({ok:true});
+      }
+    }
+    return jsonResponse({ok:false, error:'Usuario no encontrado'});
+  } catch(e) { return jsonResponse({ok:false, error:e.message}); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// GUARDAR ENTRENAMIENTO
+// ═══════════════════════════════════════════════════════════════════════
+
+function guardarEntrenamiento(d) {
+  var hoja = obtenerOCrearHoja(HOJAS.entrenamiento);
+  if (hoja.getLastRow() === 0) {
+    hoja.appendRow([
+      'Timestamp','Categoria','Entrenador','Rol','Fecha','Hora',
+      'Duracion min','Campo','Objetivo','Presentes','Ausentes','Lesiones',
+      'Asistencia detalle','Principios Tacticos','Principios Fisicos',
+      'Principios Tecnicos','Sistema','Intensidad','Notas','Jugador Destacado'
+    ]);
+    formatearCabecera(hoja);
+  }
+  hoja.appendRow([
+    new Date(d.timestamp || Date.now()),
+    d.categoria || '', d.entrenador || '', d.rol || '',
+    d.fecha || '', d.hora || '', d.duracion || '', d.campo || '',
+    d.objetivo || '', d.presentes || 0, d.ausentes || 0, d.lesiones || 0,
+    formatarAsistencia(d.asistencia),
+    d.principios_tacticos || '', d.principios_fisicos || '', d.principios_tecnicos || '',
+    d.sistema || '', d.intensidad || '', d.notas || '', d.destacado || ''
+  ]);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// GUARDAR PARTIDO
+// ═══════════════════════════════════════════════════════════════════════
+
+function guardarPartido(d) {
+  var hoja = obtenerOCrearHoja(HOJAS.partido);
+  if (hoja.getLastRow() === 0) {
+    hoja.appendRow([
+      'Timestamp','Categoria','Entrenador','Rol','Jornada','Fecha',
+      'Rival','Condicion','Resultado','Campo','Goles detalle','Ocasiones',
+      'Tiros puerta','Tiros fuera','Tiros bloqueados','Corners','Faltas fav',
+      'Faltas cnt','Amarillas','Rojas','Paradas portero','FDJ fav','FDJ cnt',
+      'BP fav','BP cnt','Penaltis fav','Penaltis cnt','Duelos','Centros',
+      'Contragolpes','Sist Ataque','Sist Defensa','Tipo Ataque','Tipo Defensa',
+      'Repliegue','Valoracion','Notas','Jugador Destacado'
+    ]);
+    formatearCabecera(hoja);
+  }
+  hoja.appendRow([
+    new Date(d.timestamp || Date.now()),
+    d.categoria || '', d.entrenador || '', d.rol || '',
+    d.jornada || '', d.fecha || '', d.rival || '', d.condicion || '',
+    d.resultado || '', d.campo || '', d.goles || '',
+    d.ocasiones || 0, d.tiros_puerta || 0, d.tiros_fuera || 0,
+    d.tiros_bloqueados || 0, d.corners || 0, d.faltas_fav || 0,
+    d.faltas_cnt || 0, d.amarillas || 0, d.rojas || 0, d.paradas || 0,
+    d.fdj_fav || 0, d.fdj_cnt || 0, d.bp_fav || 0, d.bp_cnt || 0,
+    d.pen_fav || 0, d.pen_cnt || 0, d.duelos || 0, d.centros || 0,
+    d.contragolpes || 0, d.sist_ataque || '', d.sist_defensa || '',
+    d.tipo_ataque || '', d.tipo_defensa || '', d.repliegue || '',
+    d.valoracion || '', d.notas || '', d.destacado || ''
+  ]);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TESTS MANUALES
+// ═══════════════════════════════════════════════════════════════════════
+
+function testManual() {
+  guardarEntrenamiento({
+    tipo: 'entrenamiento', categoria: 'amateur', entrenador: 'Test Coach',
+    rol: 'entrenador', fecha: '2025-09-15', hora: '19:00', duracion: '90',
+    campo: 'Campo principal', objetivo: 'Prueba del sistema',
+    presentes: 14, ausentes: 1, lesiones: 1,
+    asistencia: '{"Jugador A":"presente","Jugador B":"ausente"}',
+    principios_tacticos: 'Presion alta', principios_fisicos: 'Velocidad',
+    principios_tecnicos: 'Pase', sistema: '4-3-3', intensidad: 'Alta',
+    notas: 'Sesion de prueba', destacado: '', timestamp: new Date().toISOString()
+  });
+  Logger.log('Test guardado correctamente');
+}
+
+function testConexion() {
+  var url = CFG_SCRAPING.base_url + '/clasificacion.php?id_temp=' + CFG_SCRAPING.id_temp +
+            '&id_modalidad=' + CFG_SCRAPING.id_modalidad +
+            '&id_competicion=' + CFG_SCRAPING.id_competicion +
+            '&id_torneo=' + CFG_SCRAPING.id_torneo;
+  var options = {
+    'method': 'get',
+    'headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'},
+    'muteHttpExceptions': true
+  };
+  var resp = UrlFetchApp.fetch(url, options);
+  var code = resp.getResponseCode();
+  var html = resp.getContentText();
+  Logger.log('Codigo respuesta: ' + code);
+  Logger.log('Tamano HTML: ' + html.length + ' chars');
+  Logger.log('Contiene tabla: ' + (html.indexOf('<table') !== -1));
+  Logger.log('Primeros 300 chars: ' + html.substring(0, 300));
+  return code === 200 ? 'Conexion OK' : 'Error ' + code;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SCRAPING PRINCIPAL
+// ═══════════════════════════════════════════════════════════════════════
+
+function scrapingCompleto() {
+  Logger.log('=== INICIO SCRAPING FFCV === ' + new Date());
+  try {
+    var clasi    = scrapearClasificacion();
+    var calendar = scrapearCalendario();
+    var proximos = obtenerProximosPartidos(calendar, 2);
+    guardarClasificacion(clasi);
+    guardarProximosPartidos(proximos);
+    proximos.forEach(function(partido) {
+      if (partido.rival_nombre) {
+        var partidos_rival = obtenerPartidosRival(calendar, partido.rival_nombre);
+        var actas_rival    = scrapearActasRival(calendar, partido.rival_nombre);
+        guardarInformeRival(partido, partidos_rival, actas_rival);
+      }
+    });
+    // Scraping equipo propio
+    var partidos_jugados = calendar.filter(function(p){ return p.es_silos && p.res !== 'Pendiente'; });
+    var actas_propias = scrapearEquipoPropio(calendar);
+    guardarInformePropio(partidos_jugados, actas_propias);
+    Logger.log('=== SCRAPING COMPLETADO ===');
+    return 'Completado';
+  } catch(e) {
+    Logger.log('ERROR: ' + e.message);
+    return 'Error: ' + e.message;
+  }
+}
+
+function scrapearClasificacion() {
+  var url = CFG_SCRAPING.base_url + '/clasificacion.php?id_temp=' + CFG_SCRAPING.id_temp +
+            '&id_modalidad=' + CFG_SCRAPING.id_modalidad +
+            '&id_competicion=' + CFG_SCRAPING.id_competicion +
+            '&id_torneo=' + CFG_SCRAPING.id_torneo;
+  var html    = fetchUrl(url);
+  var equipos = [];
+  var filas   = extraerFilasTabla(html);
+  filas.forEach(function(celdas) {
+    if (celdas.length >= 10 && /^\d+$/.test(celdas[1].trim())) {
+      var J = parseInt(celdas[3]) || 0;
+      equipos.push({
+        pos: parseInt(celdas[1]), club: limpiarTexto(celdas[2]),
+        J: J, G: extraerGxP(celdas[4], J), E: extraerGxP(celdas[5], J),
+        P: extraerGxP(celdas[6], J), GF: extraerGoles(celdas[7], J),
+        GC: extraerGoles(celdas[8], J), DIF: parseInt(celdas[9]) || 0,
+        PT: parseInt(celdas[10]) || 0
+      });
+    }
+  });
+  Logger.log('Clasificacion: ' + equipos.length + ' equipos');
+  return equipos;
+}
+
+function scrapearCalendario() {
+  var url = CFG_SCRAPING.base_url + '/calendario.php?id_temp=' + CFG_SCRAPING.id_temp +
+            '&id_modalidad=' + CFG_SCRAPING.id_modalidad +
+            '&id_competicion=' + CFG_SCRAPING.id_competicion +
+            '&id_torneo=' + CFG_SCRAPING.id_torneo;
+  var html     = fetchUrl(url);
+  var partidos = [];
+  var jornada  = '';
+
+  // Parsear filas RAW para capturar id_partido antes de limpiar HTML
+  var fila_re  = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  var celda_re = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
+  var tag_re   = /<[^>]+>/g;
+  var fila_m;
+
+  while ((fila_m = fila_re.exec(html)) !== null) {
+    var fila_raw = fila_m[1];
+    var celdas_raw = [];
+    var celda_m;
+    celda_re.lastIndex = 0;
+    while ((celda_m = celda_re.exec(fila_raw)) !== null) {
+      celdas_raw.push(celda_m[1]);
+    }
+    if (celdas_raw.length === 0) continue;
+
+    var celdas = celdas_raw.map(function(c) { return limpiarTexto(c.replace(tag_re, ' ')); });
+
+    if (celdas.length === 1 && celdas[0].indexOf('JORNADA') !== -1) {
+      jornada = celdas[0].trim();
+    } else if (celdas.length >= 4) {
+      var partido_txt = celdas[2] || '';
+      var resultado   = celdas[3] || '';
+      var fecha_raw   = celdas[4] || '';
+      var campo       = (celdas[5] || '').replace('(HA)', '').trim();
+      var j_num       = parseInt((jornada.match(/\d+/) || ['0'])[0]);
+
+      // Extraer id_partido del HTML RAW de esta fila
+      var id_p = '';
+      var id_m = fila_raw.match(/id_partido=(\d+)/);
+      if (id_m) id_p = id_m[1];
+
+      var nombre_eq = CFG_SCRAPING.nombre_equipo || '';
+      // Detectar si es nuestro equipo usando el nombre exacto (A o B)
+      var es_silos = nombre_eq ? partido_txt.indexOf(nombre_eq.substring(0,20)) !== -1 : partido_txt.indexOf('Silos') !== -1;
+      // Si no hay nombre específico, usar detección genérica
+      if (!es_silos && !nombre_eq) es_silos = partido_txt.indexOf('Silos') !== -1;
+      var es_local = partido_txt.indexOf(nombre_eq.substring(0,20)) === 0 || partido_txt.indexOf('Los Silos C.F.') === 0;
+      // Refinar es_local: solo si la posición 0 coincide con nuestro equipo
+      if (nombre_eq && partido_txt.indexOf(nombre_eq.substring(0,20)) !== 0) es_local = false;
+      if (nombre_eq && partido_txt.indexOf(nombre_eq.substring(0,20)) === 0) es_local = true;
+      var gf = 0, gc = 0, res = 'Pendiente', rival = '';
+
+      if (es_silos) {
+        var n = CFG_SCRAPING.nombre_equipo;
+        rival = partido_txt.replace(n, '').replace(/^\s*-\s*/, '').replace(/\s*-\s*$/, '').trim();
+        if (resultado && resultado !== '-') {
+          var pp = resultado.split('-');
+          if (pp.length === 2) {
+            var s1 = parseInt(pp[0]) || 0;
+            var s2 = parseInt(pp[1]) || 0;
+            gf = es_local ? s1 : s2;
+            gc = es_local ? s2 : s1;
+            res = gf > gc ? 'V' : (gf === gc ? 'E' : 'D');
+          }
+        }
+      }
+
+      var fecha  = fecha_raw.replace(/\d{2}:\d{2}/, '').trim();
+      var hora_m = fecha_raw.match(/(\d{2}:\d{2})/);
+      partidos.push({
+        jornada: jornada, j_num: j_num, partido: partido_txt,
+        es_silos: es_silos, es_local: es_local, rival: rival,
+        resultado: resultado, gf: gf, gc: gc, res: res,
+        fecha: fecha, hora: hora_m ? hora_m[1] : '',
+        campo: campo, id_partido: id_p
+      });
+    }
+  }
+
+  Logger.log('Calendario: ' + partidos.length + ' filas, ' +
+             partidos.filter(function(p){ return p.es_silos; }).length + ' de Los Silos');
+  return partidos;
+}
+
+function obtenerProximosPartidos(partidos, n) {
+  var hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  var silos = partidos.filter(function(p) {
+    if (!p.es_silos || p.res !== 'Pendiente') return false;
+    // Filtrar por fecha si está disponible
+    if (p.fecha && p.fecha.trim() !== '') {
+      try {
+        var fecha_str = p.fecha.trim();
+        var fecha_p;
+        var parts = fecha_str.split(/[-\/]/);
+        if (parts.length === 3 && parts[0].length === 2) {
+          fecha_p = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+        } else {
+          fecha_p = new Date(fecha_str);
+        }
+        if (!isNaN(fecha_p.getTime())) {
+          fecha_p.setHours(0,0,0,0);
+          return fecha_p >= hoy;
+        }
+      } catch(e) {}
+    }
+    return false; // Sin fecha o fecha inválida — excluir
+  });
+  silos.sort(function(a, b) { return a.j_num - b.j_num; });
+  var proximos = silos.slice(0, n || 2);
+  proximos.forEach(function(p) {
+    p.rival_nombre = p.rival;
+    Logger.log('Proximo: J' + p.j_num + ' vs ' + p.rival + ' ' + (p.es_local ? 'Local' : 'Visitante') + ' ' + p.fecha);
+  });
+  return proximos;
+}
+
+function obtenerPartidosRival(todos, nombre_rival) {
+  var rival_key = nombre_rival.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 10);
+  return todos.filter(function(p) {
+    if (!p.resultado || p.resultado === '-') return false;
+    return p.partido.toLowerCase().replace(/[^a-z0-9]/g, '').indexOf(rival_key) !== -1;
+  }).map(function(p) {
+    var tk = p.partido.toLowerCase().replace(/[^a-z0-9]/g, '');
+    var es_local_rival = tk.indexOf(rival_key) === 0 || p.partido.indexOf(nombre_rival.substring(0, 8)) === 0;
+    var pp = p.resultado.split('-');
+    var gf_r = 0, gc_r = 0, res_r = '';
+    if (pp.length === 2) {
+      var s1 = parseInt(pp[0]) || 0, s2 = parseInt(pp[1]) || 0;
+      gf_r = es_local_rival ? s1 : s2;
+      gc_r = es_local_rival ? s2 : s1;
+      res_r = gf_r > gc_r ? 'V' : (gf_r === gc_r ? 'E' : 'D');
+    }
+    return {jornada: p.jornada, gf: gf_r, gc: gc_r, res: res_r, cond: es_local_rival ? 'L' : 'V'};
+  }).filter(function(p) { return p.res !== ''; });
+}
+
+function normalizar(s) {
+  return (s || '').toLowerCase()
+    .replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i')
+    .replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/ñ/g,'n')
+    .replace(/[^a-z0-9]/g,'');
+}
+
+function similitud(a, b) {
+  // Cuenta cuántos caracteres de a están en b, normalizado por longitud
+  var na = normalizar(a), nb = normalizar(b);
+  if (!na || !nb) return 0;
+  var coincide = 0;
+  for (var i = 0; i < Math.min(na.length, 15); i++) {
+    if (nb.indexOf(na[i]) !== -1) coincide++;
+  }
+  return coincide / Math.min(na.length, 15);
+}
+
+function detectarLadoRival(nombre_rival, equipo_local_api, equipo_visit_api, nombre_propio, goles_local_acta, goles_visit_acta, gf_partido, gc_partido) {
+  var simRivalLocal  = similitud(nombre_rival,  equipo_local_api);
+  var simRivalVisit  = similitud(nombre_rival,  equipo_visit_api);
+  var simPropioLocal = similitud(nombre_propio, equipo_local_api);
+  var simPropioVisit = similitud(nombre_propio, equipo_visit_api);
+
+  // Método 1: similitud directa del nombre del rival
+  var votoNombre = simRivalLocal > simRivalVisit ? 1 : -1;
+
+  // Método 2: similitud del propio equipo (si somos visitante, rival es local)
+  var votoPropio = simPropioVisit > simPropioLocal ? 1 : -1;
+
+  // Método 3: validación cruzada con el marcador del partido
+  // Si conocemos el resultado (gf=goles a favor nuestros, gc=en contra)
+  // y contamos goles de cada lado del acta → podemos verificar
+  var votoMarcador = 0;
+  if (goles_local_acta !== undefined && goles_visit_acta !== undefined &&
+      gf_partido !== undefined && gc_partido !== undefined &&
+      (gf_partido + gc_partido) > 0) {
+    // Si goles_local_acta == gc_partido → el local del acta es el rival (nosotros encajamos esos goles)
+    // Si goles_local_acta == gf_partido → el local del acta somos nosotros
+    var matchLocalEsRival  = (goles_local_acta === gc_partido && goles_visit_acta === gf_partido);
+    var matchLocalEsPropio = (goles_local_acta === gf_partido && goles_visit_acta === gc_partido);
+    if (matchLocalEsRival && !matchLocalEsPropio)  votoMarcador =  1; // rival es local
+    if (matchLocalEsPropio && !matchLocalEsRival)  votoMarcador = -1; // rival es visitante
+    if (votoMarcador !== 0) {
+      Logger.log('Marcador confirma: local_acta=' + goles_local_acta + ' visit_acta=' + goles_visit_acta +
+        ' nuestros_gf=' + gf_partido + ' nuestros_gc=' + gc_partido + 
+        ' → rival es ' + (votoMarcador === 1 ? 'LOCAL' : 'VISITANTE'));
+    }
+  }
+
+  // Votación ponderada: marcador tiene peso doble por ser objetivo
+  var votos = votoNombre + votoPropio + (votoMarcador * 2);
+  var rivalEsLocal = votos >= 0;
+
+  // Alerta si hay contradicción entre métodos
+  if (votoMarcador !== 0 && votoMarcador !== (rivalEsLocal ? 1 : -1)) {
+    Logger.log('⚠️ ALERTA CONTRADICCION en partido: nombre dice ' + (votoNombre===1?'LOCAL':'VISIT') + 
+      ' pero marcador dice ' + (votoMarcador===1?'LOCAL':'VISIT') + ' — usando marcador');
+    rivalEsLocal = votoMarcador === 1;
+  }
+
+  Logger.log('Deteccion rival: "' + nombre_rival.substring(0,20) + '" | "' + equipo_local_api.substring(0,15) + 
+    '" vs "' + equipo_visit_api.substring(0,15) + '" | simRL=' + simRivalLocal.toFixed(2) + 
+    ' simRV=' + simRivalVisit.toFixed(2) + ' votos=' + votos + 
+    ' | RIVAL=' + (rivalEsLocal ? 'LOCAL ✅' : 'VISITANTE ✅'));
+  return rivalEsLocal;
+}
+
+function scrapearActasRival(todos, nombre_rival) {
+  var rival_key = normalizar(nombre_rival).substring(0, 12);
+  var nombre_propio = CFG_SCRAPING.nombre_equipo;
+  var ids_rival = [];
+
+  todos.forEach(function(p) {
+    if (!p.id_partido) return;
+    var partido_norm = normalizar(p.partido);
+    if (partido_norm.indexOf(rival_key.substring(0,8)) !== -1 &&
+        p.resultado && p.resultado !== '-') {
+      ids_rival.push(p.id_partido);
+    }
+  });
+  ids_rival = ids_rival.filter(function(id, idx) {
+    return ids_rival.indexOf(id) === idx;
+  });
+  Logger.log('Actas a scrapear (FFCV API): ' + ids_rival.length);
+
+  var gt = {'0-15':0,'16-30':0,'31-45':0,'46-60':0,'61-75':0,'76-90':0};
+  var et = {'0-15':0,'16-30':0,'31-45':0,'46-60':0,'61-75':0,'76-90':0};
+  var amarillas = {}, rojas = {}, goleadores = {}, total_am = 0, total_ro = 0, ok = 0;
+  var marca_primero_total=0, marca_primero_gana=0;
+  var encaja_primero_total=0, encaja_primero_pierde=0;
+  var porteria_cero_rival=0, sin_marcar_rival=0;
+
+  var todos_ref = todos; // referencia para validación cruzada
+  ids_rival.forEach(function(id_partido) {
+    try {
+      var url = 'https://ffcv.es/competiciones/api/partidos/ficha_partido_ajax.php?cod_partido=' + id_partido;
+      var resp = UrlFetchApp.fetch(url, {
+        method: 'get',
+        headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
+        muteHttpExceptions: true
+      });
+      if (resp.getResponseCode() !== 200) { Logger.log('HTTP ' + resp.getResponseCode() + ' para ' + id_partido); return; }
+      var data = JSON.parse(resp.getContentText('UTF-8'));
+      if (!data || !data.codacta) { Logger.log('Sin datos para ' + id_partido); return; }
+
+      // Contar goles de cada lado en el acta
+      var goles_local_n  = (data.goles_equipo_local     || []).length;
+      var goles_visit_n  = (data.goles_equipo_visitante || []).length;
+
+      // Buscar resultado del partido en el calendario para validación cruzada
+      var p_cal = todos_ref.filter(function(p){ return p.id_partido === id_partido; })[0];
+      var gf_cal = p_cal ? p_cal.gf : undefined;
+      var gc_cal = p_cal ? p_cal.gc : undefined;
+
+      // Detectar qué lado es el rival con algoritmo mejorado + validación marcador
+      var rival_es_local = detectarLadoRival(
+        nombre_rival,
+        data.equipo_local     || '',
+        data.equipo_visitante || '',
+        nombre_propio,
+        goles_local_n, goles_visit_n,
+        gc_cal, gf_cal  // ojo: gc_cal son los goles del rival = gf del rival
+      );
+
+      var goles_rival = rival_es_local ? (data.goles_equipo_local || [])    : (data.goles_equipo_visitante || []);
+      var goles_otro  = rival_es_local ? (data.goles_equipo_visitante || []) : (data.goles_equipo_local || []);
+      var tarj_rival  = rival_es_local ? (data.tarjetas_equipo_local || [])  : (data.tarjetas_equipo_visitante || []);
+
+      goles_rival.forEach(function(g) {
+        var min = parseInt(g.minuto) || 0;
+        var tramo = min <= 15 ? '0-15' : min <= 30 ? '16-30' : min <= 45 ? '31-45' :
+                    min <= 60 ? '46-60' : min <= 75 ? '61-75' : '76-90';
+        gt[tramo]++;
+        Logger.log('GOL RIVAL min ' + min + ' (' + g.nombre_jugador + ')');
+        var gn = (g.nombre_jugador || 'Desconocido').substring(0, 25);
+        goleadores[gn] = (goleadores[gn] || 0) + 1;
+      });
+
+      goles_otro.forEach(function(g) {
+        var min = parseInt(g.minuto) || 0;
+        var tramo = min <= 15 ? '0-15' : min <= 30 ? '16-30' : min <= 45 ? '31-45' :
+                    min <= 60 ? '46-60' : min <= 75 ? '61-75' : '76-90';
+        et[tramo]++;
+      });
+
+      tarj_rival.forEach(function(t) {
+        var min  = parseInt(t.minuto) || 0;
+        var jug  = (t.nombre_jugador || 'Desconocido').substring(0, 25);
+        var cod  = String(t.codigo_tipo_amonestacion || '');
+        var seg  = String(t.segunda_amarilla || '0');
+        if (cod === '101') {
+          total_ro++;
+          rojas[jug] = (rojas[jug] || 0) + 1;
+        } else if (seg === '1') {
+          total_ro++;
+          rojas[jug] = (rojas[jug] || 0) + 1;
+        } else if (cod === '100') {
+          total_am++;
+          amarillas[jug] = (amarillas[jug] || 0) + 1;
+        }
+      });
+
+      ok++;
+      Utilities.sleep(500);
+    } catch(e) { Logger.log('Error acta ' + id_partido + ': ' + e.message); }
+  });
+
+  var am_sorted = Object.keys(amarillas).map(function(k) { return {jugador: k, n: amarillas[k]}; });
+  am_sorted.sort(function(a, b) { return b.n - a.n; });
+
+  return {
+    goles_por_tramo:  gt, encaja_por_tramo: et,
+    total_amarillas:  total_am, total_rojas: total_ro,
+    top_amarillas:    am_sorted.slice(0, 5),
+    reincidentes:     am_sorted.filter(function(j) { return j.n >= 2; }),
+    actas_analizadas: ok,
+    top_goleadores:   Object.keys(goleadores).map(function(k){ return {jugador:k, goles:goleadores[k]}; }).sort(function(a,b){ return b.goles-a.goles; }).slice(0, 10),
+    marca_primero_total:   marca_primero_total,
+    marca_primero_gana:    marca_primero_gana,
+    encaja_primero_total:  encaja_primero_total,
+    encaja_primero_pierde: encaja_primero_pierde,
+    porteria_cero:         porteria_cero_rival,
+    sin_marcar:            sin_marcar_rival
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// GUARDAR EN SHEETS
+// ═══════════════════════════════════════════════════════════════════════
+
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// ANOMALÍAS TIPO 3 — NUESTRO EQUIPO (entrenos + partidos)
+// ═══════════════════════════════════════════════════════════════════════
+
+function getProximosPartidosEquipo(categoria) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Proximos_' + categoria);
+    if (!hoja || hoja.getLastRow() < 2) return jsonResponse({ok:false, error:'Sin datos para ' + categoria});
+    var datos = hoja.getDataRange().getValues().slice(1);
+    var proximos = datos.map(function(r) {
+      var fecha_raw = r[1];
+      var fecha_str = '';
+      try {
+        var fd = new Date(fecha_raw);
+        if (!isNaN(fd.getTime())) {
+          fecha_str = Utilities.formatDate(fd, 'Europe/Madrid', 'dd-MM-yyyy');
+        }
+      } catch(ex) { fecha_str = fecha_raw ? fecha_raw.toString() : ''; }
+
+      var hora_raw = r[2];
+      var hora_str = '';
+      try {
+        var hd = new Date(hora_raw);
+        if (!isNaN(hd.getTime())) {
+          // La hora viene como fecha 1899 con la hora correcta
+          var hm2 = hora_raw.toString().match(/(\d{1,2}):(\d{2}):\d{2} GMT/);
+          if (hm2) {
+            hora_str = hm2[1] + ':' + hm2[2];
+          } else {
+            hora_str = Utilities.formatDate(hd, 'Europe/Madrid', 'HH:mm');
+          }
+        }
+      } catch(ex) { hora_str = hora_raw ? hora_raw.toString().substring(0,5) : ''; }
+      return {
+        jornada:  r[0] ? r[0].toString() : '',
+        j_num:    parseInt((r[0]||'').toString().match(/\d+/) ? (r[0].toString().match(/\d+/)||[0])[0] : 0),
+        fecha:    fecha_str,
+        hora:     hora_str,
+        condicion:r[3] ? r[3].toString() : '',
+        rival:    r[4] ? r[4].toString() : '',
+        campo:    r[5] ? r[5].toString() : ''
+      };
+    }).filter(function(p){ return p.rival && p.j_num > 0; });
+    return jsonResponse({ok:true, proximos: proximos});
+  } catch(err) { return jsonResponse({ok:false, error:err.message}); }
+}
+
+function getInformeRivalCacheEquipo(categoria, j_num) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Rival_Cache_' + categoria);
+    if (!hoja) return jsonResponse({ok:false, error:'Sin informe para ' + categoria});
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if (parseInt(datos[i][0]) === j_num) {
+        return jsonResponse({ok:true, data:JSON.parse(datos[i][1]), generado:String(datos[i][2])});
+      }
+    }
+    return jsonResponse({ok:false, error:'Sin informe J' + j_num + ' para ' + categoria});
+  } catch(err) { return jsonResponse({ok:false, error:err.message}); }
+}
+
+function getInformePropioEquipo_get(categoria) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Propio_Cache_' + categoria);
+    if (!hoja || hoja.getLastRow() < 2) return jsonResponse({ok:false, error:'Sin informe para ' + categoria});
+    var datos = hoja.getDataRange().getValues();
+    return jsonResponse({ok:true, data:JSON.parse(datos[1][1]), generado:String(datos[1][2])});
+  } catch(err) { return jsonResponse({ok:false, error:err.message}); }
+}
+
+
+function getProximosPartidos() {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Proximos_Partidos');
+    if (!hoja || hoja.getLastRow() < 2) return jsonResponse({ok:false, error:'Sin datos de próximos partidos'});
+    var datos = hoja.getDataRange().getValues().slice(1); // sin cabecera
+    var proximos = datos.map(function(r) {
+      return {
+        jornada:  r[0] ? r[0].toString() : '',
+        j_num:    parseInt((r[0]||'').toString().match(/\d+/) ? (r[0].toString().match(/\d+/)||[0])[0] : 0),
+        fecha:    r[1] ? r[1].toString() : '',
+        hora:     r[2] ? r[2].toString() : '',
+        condicion:r[3] ? r[3].toString() : '',
+        rival:    r[4] ? r[4].toString() : '',
+        campo:    r[5] ? r[5].toString() : ''
+      };
+    }).filter(function(p){ return p.rival && p.j_num > 0; });
+    return jsonResponse({ok:true, proximos: proximos});
+  } catch(err) {
+    return jsonResponse({ok:false, error: err.message});
+  }
+}
+
+function getAnomaliasPropias(categoria) {
+  try {
+    var ss = SpreadsheetApp.openById(SS_ID);
+    var hE = ss.getSheetByName('Entrenamientos');
+    var hP = ss.getSheetByName('Partidos');
+    if (!hE || !hP) return jsonResponse({ok: false, error: 'Sin datos de entrenamientos/partidos'});
+
+    var entrenos = hE.getDataRange().getValues().slice(1).filter(function(r) {
+      return r[1].toString().toLowerCase() === categoria.toLowerCase() && r[4];
+    });
+    var partidos = hP.getDataRange().getValues().slice(1).filter(function(r) {
+      return r[1].toString().toLowerCase() === categoria.toLowerCase() && r[8] && r[8] !== '-';
+    });
+
+    if (partidos.length < 5) return jsonResponse({ok: true, anomalias: [], aviso: 'Mínimo 5 partidos registrados para calcular anomalías'});
+
+    var anomalias = [];
+
+    // ── CORRELACIÓN ASISTENCIA ENTRENO → RESULTADO ──
+    var semanas_alta = [], semanas_baja = [];
+    partidos.forEach(function(p) {
+      var fecha_partido = new Date(p[5]);
+      // Buscar entrenamientos de los 7 días anteriores al partido
+      var entrenos_semana = entrenos.filter(function(e) {
+        var fe = new Date(e[4]);
+        var diff = (fecha_partido - fe) / (1000*60*60*24);
+        return diff >= 0 && diff <= 7;
+      });
+      if (entrenos_semana.length === 0) return;
+      var total_presentes = entrenos_semana.reduce(function(s, e) { return s + (parseInt(e[9]) || 0); }, 0);
+      var total_ausentes  = entrenos_semana.reduce(function(s, e) { return s + (parseInt(e[10]) || 0); }, 0);
+      var total_jugadores = total_presentes + total_ausentes;
+      var pct = total_jugadores > 0 ? total_presentes / total_jugadores * 100 : 0;
+      var resultado = parsearResultado(p[8], p[7] === 'Local');
+      var semana = {pct: pct, res: resultado.res, gf: resultado.gf, gc: resultado.gc};
+      if (pct >= 75) semanas_alta.push(semana);
+      else if (pct < 60) semanas_baja.push(semana);
+    });
+
+    if (semanas_alta.length >= 3 && semanas_baja.length >= 2) {
+      var v_alta = semanas_alta.filter(function(s){ return s.res === 'V'; }).length;
+      var v_baja = semanas_baja.filter(function(s){ return s.res === 'V'; }).length;
+      var pct_alta = Math.round(v_alta / semanas_alta.length * 100);
+      var pct_baja = Math.round(v_baja / semanas_baja.length * 100);
+      if (pct_alta - pct_baja >= 20) {
+        anomalias.push({
+          nivel: pct_alta - pct_baja >= 35 ? 'verde' : 'verde',
+          texto: 'Semanas con +75% asistencia → ' + pct_alta + '% victorias · Semanas con -60% → ' + pct_baja + '%',
+          accion: 'La asistencia al entrenamiento correlaciona directamente con los resultados'
+        });
+      }
+    }
+
+    // ── ANÁLISIS 1ª vs 2ª PARTE (goles propios) ──
+    var gc1p = 0, gc2p = 0, gf1p = 0, gf2p = 0;
+    var corners_1p = 0, corners_2p = 0, corners_total = 0;
+    partidos.forEach(function(p) {
+      var goles_json = p[10];
+      if (goles_json) {
+        try {
+          var goles = typeof goles_json === 'string' ? JSON.parse(goles_json) : goles_json;
+          if (Array.isArray(goles)) {
+            goles.forEach(function(g) {
+              var min = parseInt(g.min) || 0;
+              if (g.tipo === 'AG') { // autogol = gol en contra
+                if (min <= 45) gc1p++; else gc2p++;
+              } else {
+                if (min <= 45) gf1p++; else gf2p++;
+              }
+            });
+          }
+        } catch(ex) {}
+      }
+      var corners = parseInt(p[15]) || 0;
+      corners_total += corners;
+    });
+
+    // ── RENDIMIENTO LOCAL vs VISITANTE ──
+    var local = partidos.filter(function(p){ return p[7] === 'Local'; });
+    var visit = partidos.filter(function(p){ return p[7] === 'Visitante'; });
+    if (local.length >= 3 && visit.length >= 3) {
+      var vL = local.filter(function(p){ var r = parsearResultado(p[8], true); return r.res === 'V'; }).length;
+      var vV = visit.filter(function(p){ var r = parsearResultado(p[8], false); return r.res === 'V'; }).length;
+      var pL = Math.round(vL / local.length * 100);
+      var pV = Math.round(vV / visit.length * 100);
+      if (Math.abs(pL - pV) >= 25) {
+        anomalias.push({
+          nivel: pL > pV ? 'verde' : 'amarillo',
+          texto: 'De local: ' + pL + '% victorias (' + local.length + 'J) · De visitante: ' + pV + '% (' + visit.length + 'J)',
+          accion: pL > pV ? 'Claramente mejores en casa — aprovechar el factor campo' : 'Rendimiento visitante a mejorar — trabajar concentración fuera'
+        });
+      }
+    }
+
+    // ── JUGADORES CON MAYOR IMPACTO ──
+    var jugador_impacto = {};
+    partidos.forEach(function(p) {
+      var res = parsearResultado(p[8], p[7] === 'Local');
+      // Usar asistencia registrada si está disponible en entrenos de esa semana
+      var fecha_partido = new Date(p[5]);
+      var entrenos_semana = entrenos.filter(function(e) {
+        var fe = new Date(e[4]);
+        var diff = (fecha_partido - fe) / (1000*60*60*24);
+        return diff >= 0 && diff <= 7;
+      });
+      entrenos_semana.forEach(function(ent) {
+        var asistencia_raw = ent[12] || '';
+        // La asistencia guardada solo tiene ausentes/lesiones, presentes están implícitos
+        // Usar jugador destacado como proxy
+        var destacado = ent[19] || '';
+        if (destacado) {
+          if (!jugador_impacto[destacado]) jugador_impacto[destacado] = {destaca: 0, v: 0, total: 0};
+          jugador_impacto[destacado].destaca++;
+          jugador_impacto[destacado].total++;
+          if (res.res === 'V') jugador_impacto[destacado].v++;
+        }
+      });
+    });
+
+    var top_jugadores = Object.keys(jugador_impacto)
+      .filter(function(k){ return jugador_impacto[k].total >= 3; })
+      .map(function(k){
+        var d = jugador_impacto[k];
+        return {jugador: k, pct_v: Math.round(d.v/d.total*100), n: d.total};
+      })
+      .sort(function(a,b){ return b.pct_v - a.pct_v; });
+
+    if (top_jugadores.length > 0) {
+      var best = top_jugadores[0];
+      if (best.pct_v >= 65) {
+        anomalias.push({
+          nivel: 'verde',
+          texto: best.jugador + ' — cuando destaca en entrenamiento, el equipo gana el ' + best.pct_v + '% de las veces (' + best.n + ' semanas)',
+          accion: 'Jugador de alto impacto — asegurarse de que llega bien al partido'
+        });
+      }
+    }
+
+    // ── RACHA ACTUAL ──
+    var ultimos = partidos.slice(-5).reverse();
+    var racha_str = ultimos.map(function(p){
+      var r = parsearResultado(p[8], p[7] === 'Local');
+      return r.res;
+    }).join(' ');
+    var racha_v = ultimos.filter(function(p){
+      return parsearResultado(p[8], p[7] === 'Local').res === 'V';
+    }).length;
+    if (racha_v >= 4) {
+      anomalias.push({nivel:'verde', texto:'Racha excelente: ' + racha_v + ' victorias en los últimos 5 partidos (' + racha_str + ')', accion:'Equipo en máxima confianza — mantener la dinámica'});
+    } else if (racha_v <= 1) {
+      anomalias.push({nivel:'rojo', texto:'Racha preocupante: solo ' + racha_v + ' victoria en los últimos 5 partidos (' + racha_str + ')', accion:'Revisar dinámica del grupo y motivación'});
+    }
+
+    return jsonResponse({ok: true, anomalias: anomalias, partidos_analizados: partidos.length});
+  } catch(err) {
+    return jsonResponse({ok: false, error: err.message});
+  }
+}
+
+function getStatsPropias(categoria) {
+  try {
+    var ss = SpreadsheetApp.openById(SS_ID);
+    var hP = ss.getSheetByName('Partidos');
+    var hE = ss.getSheetByName('Entrenamientos');
+    if (!hP) return jsonResponse({ok: false, error: 'Sin datos'});
+
+    var partidos = hP.getDataRange().getValues().slice(1).filter(function(r) {
+      return r[1].toString().toLowerCase() === categoria.toLowerCase() && r[8] && r[8] !== '-';
+    });
+    var entrenos = hE ? hE.getDataRange().getValues().slice(1).filter(function(r) {
+      return r[1].toString().toLowerCase() === categoria.toLowerCase();
+    }) : [];
+
+    var J = partidos.length;
+    var V=0, E=0, D=0, GF=0, GC=0;
+    var corners_total=0, amarillas_total=0;
+    partidos.forEach(function(p) {
+      var r = parsearResultado(p[8], p[7] === 'Local');
+      if (r.res==='V') V++; else if (r.res==='E') E++; else D++;
+      GF += r.gf; GC += r.gc;
+      corners_total += parseInt(p[15]) || 0;
+      amarillas_total += parseInt(p[18]) || 0;
+    });
+
+    var avg_asistencia = 0;
+    if (entrenos.length > 0) {
+      var total_pct = 0, count = 0;
+      entrenos.forEach(function(e) {
+        var pr = parseInt(e[9]) || 0;
+        var au = parseInt(e[10]) || 0;
+        if (pr + au > 0) { total_pct += pr/(pr+au)*100; count++; }
+      });
+      avg_asistencia = count > 0 ? Math.round(total_pct/count) : 0;
+    }
+
+    return jsonResponse({
+      ok: true,
+      stats: {
+        J:J, V:V, E:E, D:D, GF:GF, GC:GC,
+        pct_v: J>0 ? Math.round(V/J*100) : 0,
+        GF_partido: J>0 ? Math.round(GF/J*10)/10 : 0,
+        GC_partido: J>0 ? Math.round(GC/J*10)/10 : 0,
+        corners_partido: J>0 ? Math.round(corners_total/J*10)/10 : 0,
+        amarillas_partido: J>0 ? Math.round(amarillas_total/J*10)/10 : 0,
+        avg_asistencia_entrenos: avg_asistencia,
+        entrenos_registrados: entrenos.length
+      }
+    });
+  } catch(err) {
+    return jsonResponse({ok: false, error: err.message});
+  }
+}
+
+function parsearResultado(resultado, es_local) {
+  if (!resultado || resultado === '-') return {res:'-', gf:0, gc:0};
+  var pp = resultado.toString().split('-');
+  if (pp.length !== 2) return {res:'-', gf:0, gc:0};
+  var s1 = parseInt(pp[0]) || 0;
+  var s2 = parseInt(pp[1]) || 0;
+  var gf = es_local ? s1 : s2;
+  var gc = es_local ? s2 : s1;
+  var res = gf > gc ? 'V' : (gf === gc ? 'E' : 'D');
+  return {res:res, gf:gf, gc:gc};
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// MOTOR DE ANÁLISIS AVANZADO v2
+// ═══════════════════════════════════════════════════════════════════════
+
+function calcularInformeCompleto(partido, partidos_rival, actas, modo) {
+  var esPropio = (modo === "propio");
+  var tramos = ['0-15','16-30','31-45','46-60','61-75','76-90'];
+  var J = partidos_rival.length;
+  var et = (actas && actas.encaja_por_tramo) || {};
+  var gt = (actas && actas.goles_por_tramo)  || {};
+  var goleadores = (actas && actas.goleadores) || [];
+  var tarjetas   = (actas && actas.tarjetas)   || {};
+
+  // ── ESTADÍSTICAS GENERALES ──────────────────────────────────────────
+  var V=0,E=0,D=0,GF=0,GC=0;
+  var marca_primero_gana=0, marca_primero_total=0;
+  var encaja_primero_pierde=0, encaja_primero_total=0;
+  var remontadas=0, remontadas_intentadas=0;
+  var pierde_ventaja=0, ventajas_total=0;
+  var porteria_cero=0, sin_marcar=0;
+  var puntos=0;
+  var min_primer_gol_total=0, min_primer_gol_count=0;
+  var gf_1p=0, gf_2p=0, gc_1p=0, gc_2p=0;
+
+  // Usar datos de actas cuando están disponibles (para informe rival)
+  if (actas && actas.marca_primero_total) marca_primero_total = actas.marca_primero_total;
+  if (actas && actas.marca_primero_gana)  marca_primero_gana  = actas.marca_primero_gana;
+  if (actas && actas.encaja_primero_total)  encaja_primero_total  = actas.encaja_primero_total;
+  if (actas && actas.encaja_primero_pierde) encaja_primero_pierde = actas.encaja_primero_pierde;
+  if (actas && actas.porteria_cero) porteria_cero = actas.porteria_cero;
+  if (actas && actas.sin_marcar)    sin_marcar    = actas.sin_marcar;
+
+  partidos_rival.forEach(function(p) {
+    if (p.res==='V') { V++; puntos+=3; }
+    else if (p.res==='E') { E++; puntos+=1; }
+    else D++;
+    GF += p.gf; GC += p.gc;
+    if (p.gc===0) porteria_cero++;
+    if (p.gf===0) sin_marcar++;
+    if (p.primer_gol_min) { min_primer_gol_total+=p.primer_gol_min; min_primer_gol_count++; }
+    if (p.gf_1p!==undefined) { gf_1p+=p.gf_1p; gc_1p+=p.gc_1p; gf_2p+=p.gf_2p; gc_2p+=p.gc_2p; }
+    if (p.marca_primero) {
+      marca_primero_total++;
+      if (p.res==='V') marca_primero_gana++;
+    }
+    if (p.encaja_primero) {
+      encaja_primero_total++;
+      if (p.res==='D') encaja_primero_pierde++;
+    }
+    if (p.remontada_intentada) {
+      remontadas_intentadas++;
+      if (p.res!=='D') remontadas++;
+    }
+    if (p.iba_ganando) {
+      ventajas_total++;
+      if (p.res==='D'||p.res==='E') pierde_ventaja++;
+    }
+  });
+
+  var pct_v   = J>0 ? Math.round(V/J*100) : 0;
+  var gf_p    = J>0 ? Math.round(GF/J*10)/10 : 0;
+  var gc_p    = J>0 ? Math.round(GC/J*10)/10 : 0;
+  var ptos_p  = J>0 ? Math.round(puntos/J*10)/10 : 0;
+  var avg_min_gol = min_primer_gol_count>0 ? Math.round(min_primer_gol_total/min_primer_gol_count) : null;
+  var pct_gana_marca1 = marca_primero_total>0 ? Math.round(marca_primero_gana/marca_primero_total*100) : null;
+  var pct_pierde_enc1 = encaja_primero_total>0 ? Math.round(encaja_primero_pierde/encaja_primero_total*100) : null;
+  var pct_remontada   = remontadas_intentadas>0 ? Math.round(remontadas/remontadas_intentadas*100) : null;
+  var pct_pierde_vent = ventajas_total>0 ? Math.round(pierde_ventaja/ventajas_total*100) : null;
+
+  // ── LOCAL vs VISITANTE ───────────────────────────────────────────────
+  var local = partidos_rival.filter(function(p){ return p.cond==='L'; });
+  var visit = partidos_rival.filter(function(p){ return p.cond==='V'; });
+  var lv = {};
+  if (local.length>0) {
+    var vL=local.filter(function(p){return p.res==='V';}).length;
+    var eL=local.filter(function(p){return p.res==='E';}).length;
+    var dL=local.length-vL-eL;
+    var gfL=local.reduce(function(s,p){return s+p.gf;},0);
+    var gcL=local.reduce(function(s,p){return s+p.gc;},0);
+    lv.local={J:local.length,V:vL,E:eL,D:dL,GF:gfL,GC:gcL,pct:Math.round(vL/local.length*100),gf_p:Math.round(gfL/local.length*10)/10,gc_p:Math.round(gcL/local.length*10)/10};
+  }
+  if (visit.length>0) {
+    var vV=visit.filter(function(p){return p.res==='V';}).length;
+    var eV=visit.filter(function(p){return p.res==='E';}).length;
+    var dV=visit.length-vV-eV;
+    var gfV=visit.reduce(function(s,p){return s+p.gf;},0);
+    var gcV=visit.reduce(function(s,p){return s+p.gc;},0);
+    lv.visitante={J:visit.length,V:vV,E:eV,D:dV,GF:gfV,GC:gcV,pct:Math.round(vV/visit.length*100),gf_p:Math.round(gfV/visit.length*10)/10,gc_p:Math.round(gcV/visit.length*10)/10};
+  }
+
+  // ── EVOLUCIÓN TEMPORADA (primera vs segunda vuelta) ───────────────────
+  var mitad = Math.floor(J/2);
+  var primera_vuelta = partidos_rival.slice(0, mitad);
+  var segunda_vuelta = partidos_rival.slice(mitad);
+  var evolucion = {};
+  if (primera_vuelta.length>0 && segunda_vuelta.length>0) {
+    var gc_p1 = primera_vuelta.reduce(function(s,p){return s+p.gc;},0)/primera_vuelta.length;
+    var gc_p2 = segunda_vuelta.reduce(function(s,p){return s+p.gc;},0)/segunda_vuelta.length;
+    var gf_p1 = primera_vuelta.reduce(function(s,p){return s+p.gf;},0)/primera_vuelta.length;
+    var gf_p2 = segunda_vuelta.reduce(function(s,p){return s+p.gf;},0)/segunda_vuelta.length;
+    evolucion = {
+      gc_1a: Math.round(gc_p1*10)/10, gc_2a: Math.round(gc_p2*10)/10,
+      gf_1a: Math.round(gf_p1*10)/10, gf_2a: Math.round(gf_p2*10)/10,
+      mejora_def: gc_p2 < gc_p1,
+      mejora_ata: gf_p2 > gf_p1
+    };
+  }
+
+  // ── RACHA ÚLTIMOS 5 ───────────────────────────────────────────────────
+  var u5 = partidos_rival.slice(-5);
+  var racha_5 = u5.map(function(p){return p.res;}).join(' ');
+  var racha_pts = u5.reduce(function(s,p){return s+(p.res==='V'?3:p.res==='E'?1:0);},0);
+
+  // ── TRAMOS ───────────────────────────────────────────────────────────
+  var total_gc_tramos = tramos.reduce(function(s,t){return s+(et[t]||0);},0);
+  var total_gf_tramos = tramos.reduce(function(s,t){return s+(gt[t]||0);},0);
+  var avg_gc_tramo = total_gc_tramos/6;
+  var tramos_peligrosos_def = tramos.filter(function(t){return (et[t]||0)>avg_gc_tramo*1.4;});
+  var tramo_max_gc = tramos.reduce(function(best,t){return (et[t]||0)>(et[best]||0)?t:best;}, tramos[0]);
+  var tramo_max_gf = tramos.reduce(function(best,t){return (gt[t]||0)>(gt[best]||0)?t:best;}, tramos[0]);
+  var pct_gc_2p = total_gc_tramos>0 ? Math.round(((et['46-60']||0)+(et['61-75']||0)+(et['76-90']||0))/total_gc_tramos*100) : 0;
+  var pct_gf_final = total_gf_tramos>0 ? Math.round((et['76-90']||0)/total_gc_tramos*100) : 0;
+
+  // ── DISCIPLINA ────────────────────────────────────────────────────────
+  var disc = {
+    total_amarillas: tarjetas.total_amarillas || 0,
+    total_rojas:     tarjetas.total_rojas || 0,
+    top_amarillas:   (tarjetas.top_amarillas||[]).slice(0,5),
+    reincidentes:    (tarjetas.reincidentes||[])
+  };
+  var am_p = J>0 ? Math.round(disc.total_amarillas/J*10)/10 : 0;
+
+  // ── PATRONES ─────────────────────────────────────────────────────────
+  var patrones = [];
+
+  // Patron: gol seguido de otro
+  if (actas && actas.doble_golpe) {
+    patrones.push({ico:'rojo',
+      texto: esPropio ? 'Tras encajar un gol, encajamos otro en los 10 min siguientes en el '+actas.doble_golpe+'% de los casos' : 'Tras encajar un gol, encajan otro en los siguientes 10 min en el '+actas.doble_golpe+'% de los casos',
+      sub: esPropio ? 'Trabajar la reacción mental tras el gol en contra — concentración y reseteo inmediato' : 'Posible problema de reacción psicológica'
+    });
+  }
+
+  // Patron: pierden ventaja
+  if (pct_pierde_vent!==null && pct_pierde_vent>=25) {
+    patrones.push({ico:'naranja',
+      texto: esPropio ? 'Cuando vamos ganando al descanso, cedemos la victoria o el empate en el '+pct_pierde_vent+'% de esos partidos' : 'Cuando van ganando al descanso, pierden o empatan el '+pct_pierde_vent+'% de esos partidos',
+      sub: esPropio ? 'Mejorar la gestión de la ventaja — trabajar la mentalidad competitiva en la 2ª parte' : 'Tendencia a gestionar mal la ventaja en la 2ª parte'
+    });
+  }
+
+  // Patron: arranque fuerte
+  if (gt['0-15'] && total_gf_tramos>0 && gt['0-15']>total_gf_tramos/6*1.5) {
+    patrones.push({ico: esPropio ? 'verde' : 'rojo',
+      texto: esPropio ? 'Arrancamos muy bien: '+gt['0-15']+' goles en los primeros 15 min ('+Math.round(gt['0-15']/total_gf_tramos*100)+'% de nuestros goles)' : 'Arrancan muy fuerte: '+gt['0-15']+' goles en los primeros 15 min',
+      sub: esPropio ? 'Fortaleza — mantener la intensidad desde el inicio en cada partido' : 'Concentración máxima desde el pitido inicial'
+    });
+  }
+
+  // Patron: degradación defensiva
+  if (evolucion.gc_1a && evolucion.gc_2a && evolucion.gc_2a > evolucion.gc_1a*1.3) {
+    patrones.push({ico:'rojo',
+      texto: esPropio ? 'Estamos encajando más en la segunda parte de la temporada: '+evolucion.gc_1a+' GC/partido antes vs '+evolucion.gc_2a+' ahora' : 'Degradación defensiva: GC/partido pasó de '+evolucion.gc_1a+' a '+evolucion.gc_2a,
+      sub: esPropio ? 'El nivel defensivo ha bajado — revisar la organización defensiva y el trabajo de presión' : 'Equipo en descenso de nivel defensivo'
+    });
+  }
+
+  // Patron: dependencia goleadora
+  if (goleadores.length>0 && total_gf_tramos>0) {
+    var pct_top = Math.round(goleadores[0].goles/GF*100);
+    if (pct_top>=25) {
+      patrones.push({ico:'naranja',
+        texto: esPropio ? goleadores[0].jugador+' genera el '+pct_top+'% de nuestros goles — dependencia ofensiva alta' : goleadores[0].jugador+' representa el '+pct_top+'% de los goles del equipo',
+        sub: esPropio ? 'Fomentar la participación goleadora de más jugadores — crear situaciones de finalización colectivas' : 'Alta dependencia ofensiva — si no juega, baja su peligro notablemente'
+      });
+    }
+  }
+
+  // ── ANOMALÍAS ────────────────────────────────────────────────────────
+  var anomalias = [];
+
+  // Tramos vulnerables
+  if (tramos_peligrosos_def.length>0 && total_gc_tramos>=8) {
+    var gc_pelig = tramos_peligrosos_def.reduce(function(s,t){return s+(et[t]||0);},0);
+    var pct_pelig = Math.round(gc_pelig/total_gc_tramos*100);
+    anomalias.push({
+      nivel: pct_pelig>=45?'rojo':'amarillo',
+      texto: esPropio
+        ? 'En los minutos '+tramos_peligrosos_def.join(' y ')+' encajamos el '+pct_pelig+'% de nuestros goles en contra'
+        : 'Encajan el '+pct_pelig+'% de sus goles en contra en los minutos '+tramos_peligrosos_def.join(' y '),
+      accion: esPropio
+        ? 'Trabajar la intensidad defensiva y la concentración en esos tramos — son nuestros minutos más débiles'
+        : 'Intensificar presión ofensiva en esos tramos'
+    });
+  }
+
+  // 2ª parte floja
+  if (pct_gc_2p>60 && total_gc_tramos>=8) {
+    anomalias.push({
+      nivel:'rojo',
+      texto: esPropio
+        ? 'Somos más vulnerables en 2ª parte: el '+pct_gc_2p+'% de los goles en contra llegan después del descanso'
+        : 'Muy vulnerables en 2ª parte: '+pct_gc_2p+'% de sus goles en contra llegan después del descanso',
+      accion: esPropio
+        ? 'Revisar la preparación física para los últimos 45 min — trabajar la resistencia y los ajustes tácticos en el descanso'
+        : 'Aumentar intensidad tras el descanso — físicamente bajan el nivel'
+    });
+  }
+
+  // Local vs visitante
+  if (lv.local && lv.visitante && lv.local.J>=3 && lv.visitante.J>=3) {
+    var diff_lv = lv.local.pct - lv.visitante.pct;
+    if (diff_lv>30) {
+      anomalias.push({
+        nivel: esPropio ? 'amarillo' : (partido.es_local?'rojo':'verde'),
+        texto: esPropio
+          ? 'Rendimos mucho mejor en casa ('+lv.local.pct+'%) que fuera ('+lv.visitante.pct+'%)'
+          : 'Mucho mejor en casa ('+lv.local.pct+'%) que fuera ('+lv.visitante.pct+'%)',
+        accion: esPropio
+          ? 'Mejorar la mentalidad y el juego a domicilio — trabajar la concentración y la propuesta ofensiva fuera de casa'
+          : (partido.es_local?'Cuidado, juegan en su campo':'Ventaja para nosotros, son débiles a domicilio')
+      });
+    } else if (lv.visitante.pct - lv.local.pct > 20) {
+      anomalias.push({
+        nivel: esPropio ? 'verde' : 'amarillo',
+        texto: esPropio
+          ? 'Rendimos mejor fuera de casa ('+lv.visitante.pct+'%) que en casa ('+lv.local.pct+'%) — aprovechamos bien el rol visitante'
+          : 'Rinden mejor fuera ('+lv.visitante.pct+'%) que en casa ('+lv.local.pct+'%)',
+        accion: esPropio
+          ? 'Fortaleza como visitante — trasladar esa mentalidad también a los partidos en casa'
+          : 'Equipo que rinde bien a domicilio'
+      });
+    }
+  }
+
+  // Racha
+  var v5 = u5.filter(function(p){return p.res==='V';}).length;
+  var d5 = u5.filter(function(p){return p.res==='D';}).length;
+  if (esPropio) {
+    if (v5>=4) anomalias.push({nivel:'verde', texto:'Estamos en un gran momento: '+v5+' victorias en los últimos 5 partidos ('+racha_pts+' puntos)', accion:'Mantener la dinámica — seguir con la misma intensidad y confianza en el grupo'});
+    else if (d5>=4) anomalias.push({nivel:'rojo', texto:'Racha negativa preocupante: '+d5+' derrotas en los últimos 5 partidos ('+racha_pts+' puntos)', accion:'Revisar la dinámica del grupo — trabajo mental, confianza y revisar lo táctico'});
+    else if (racha_pts<=3) anomalias.push({nivel:'amarillo', texto:'Solo '+racha_pts+' puntos en los últimos 5 partidos — momento de reacción', accion:'Analizar los errores recientes y reforzar la mentalidad competitiva del equipo'});
   } else {
-    // formato DD-MM-YYYY o YYYY-MM-DD
-    var parts = txt.split(/[-\/]/);
-    if (parts.length === 3) {
-      var dd, mm, yyyy;
-      if (parts[0].length === 4) { yyyy=parts[0]; mm=parts[1]; dd=parts[2]; }
-      else                       { dd=parts[0];   mm=parts[1]; yyyy=parts[2]; }
-      var d3 = new Date(parseInt(yyyy), parseInt(mm)-1, parseInt(dd));
-      if (!isNaN(d3.getTime())) {
-        diaNom = DIAS[d3.getDay()] || '';
-        dia    = dd;
-        mes    = MESES_NOMBRE[parseInt(mm)-1] || '';
-      }
+    if (v5>=4) anomalias.push({nivel:'rojo', texto:'Rival en gran forma: '+v5+' victorias en los últimos 5 partidos ('+racha_pts+' puntos)', accion:'Máxima concentración, están en su mejor momento'});
+    else if (d5>=4) anomalias.push({nivel:'verde', texto:'Rival en mal momento: '+d5+' derrotas en los últimos 5 partidos ('+racha_pts+' puntos)', accion:'Buen momento para presionarles — llegan con la moral baja'});
+    else if (racha_pts<=3) anomalias.push({nivel:'verde', texto:'Solo '+racha_pts+' puntos en los últimos 5 partidos — momento delicado', accion:'Aprovechar su falta de confianza'});
+  }
+
+  // Portería / ataque
+  if (esPropio) {
+    if (gc_p>=2.5) anomalias.push({nivel:'rojo', texto:'Encajamos '+gc_p+' goles por partido de media — la defensa necesita mejorar', accion:'Revisar la organización defensiva, las coberturas y la presión — reducir los errores individuales'});
+    if (gf_p>=2.5) anomalias.push({nivel:'verde', texto:'Somos muy goleadores: '+gf_p+' goles por partido de media', accion:'Mantener la efectividad ofensiva — seguir generando ocasiones con intensidad y movilidad'});
+    if (porteria_cero>=Math.round(J*0.35) && J>=5) anomalias.push({nivel:'verde', texto:porteria_cero+' partidos sin encajar de '+J+' — buena solidez defensiva', accion:'Fortaleza — mantener la concentración defensiva y premiar al portero y a los defensas'});
+  } else {
+    if (gc_p>=2.5) anomalias.push({nivel:'verde', texto:'Defensa muy porosa: encajan '+gc_p+' goles por partido', accion:'Proponer juego ofensivo directo — la defensa cede'});
+    if (gf_p>=2.5) anomalias.push({nivel:'amarillo', texto:'Ataque muy productivo: marcan '+gf_p+' goles por partido', accion:'Reforzar la línea defensiva — son muy goleadores'});
+    if (porteria_cero>=Math.round(J*0.35) && J>=5) anomalias.push({nivel:'amarillo', texto:'Portería sólida: '+porteria_cero+' partidos sin encajar de '+J+' ('+Math.round(porteria_cero/J*100)+'%)', accion:'Será difícil marcarles — preparar jugadas ensayadas'});
+  }
+
+  // Jugador clave / dependencia
+  if (goleadores.length>0 && GF>0) {
+    var top = goleadores[0];
+    var pct_top2 = Math.round(top.goles/GF*100);
+    if (pct_top2>=20) {
+      anomalias.push({nivel:'amarillo',
+        texto: esPropio
+          ? top.jugador+' genera el '+pct_top2+'% de nuestros goles ('+top.goles+') — dependencia ofensiva alta'
+          : top.jugador+' supone el '+pct_top2+'% de los goles del equipo ('+top.goles+' goles)',
+        accion: esPropio
+          ? 'Repartir la responsabilidad goleadora — trabajar las llegadas de otros jugadores y las combinaciones colectivas'
+          : 'Clave neutralizarle — sin él su ataque pierde mucho peligro'
+      });
     }
   }
 
-  // Hora: limpiar si viene como "Sat Dec 30 1899 19:00:00 GMT..."
-  var horaLimpia = (hora||'').toString().trim();
-  if (horaLimpia.indexOf('GMT') !== -1 || horaLimpia.length > 10) {
-    var match = horaLimpia.match(/(\d{1,2}):(\d{2})/);
-    if (match) {
-      var h = parseInt(match[1]);
-      var m = match[2];
-      // Si año es 1899 la hora es un valor serial de Excel — extraer del string
-      horaLimpia = h + ':' + m;
-    } else {
-      horaLimpia = '';
-    }
+  // Disciplina
+  if (esPropio) {
+    if (disc.total_rojas>=3 && J>=10) anomalias.push({nivel:'rojo', texto:disc.total_rojas+' expulsiones en la temporada — problema de control emocional', accion:'Trabajar el control emocional y la gestión de la presión — las expulsiones nos dejan en inferioridad en momentos clave'});
+    if (am_p>=2.5) anomalias.push({nivel:'amarillo', texto:am_p+' amarillas por partido de media — muchas amonestaciones', accion:'Mejorar el control del juego y la disciplina táctica — reducir las faltas innecesarias que nos ponen en riesgo'});
+  } else {
+    if (disc.total_rojas>=3 && J>=10) anomalias.push({nivel:'verde', texto:disc.total_rojas+' expulsiones en la temporada — equipo que se descontrola', accion:'Provocar situaciones de presión — tienden a perder la compostura'});
+    if (am_p>=2.5) anomalias.push({nivel:'amarillo', texto:am_p+' amarillas por partido de media — equipo muy agresivo', accion:'Aprovechar faltas — pedir al árbitro y generar situaciones de BP'});
   }
 
-  if (!dia && !diaNom) return '<div class="hora" style="color:#999">-</div>';
+  // ── CONCLUSIONES ─────────────────────────────────────────────────────
+  var conclusiones = [];
 
-  return '<div class="fecha">' + diaNom.toUpperCase() + ' ' + dia + ' ' + mes.substring(0,3).toUpperCase() + '</div>' +
-         (horaLimpia ? '<div class="hora">' + horaLimpia + ' h</div>' : '');
-}
-
-function getSemana() {
-  var hoy    = new Date();
-  var dia    = hoy.getDay();
-  var lunes  = new Date(hoy); lunes.setDate(hoy.getDate()-(dia===0?6:dia-1));
-  var domingo= new Date(lunes); domingo.setDate(lunes.getDate()+6);
-  var m      = MESES_NOMBRE[domingo.getMonth()];
-  return lunes.getDate() + '-' + domingo.getDate() + '-' + domingo.getDate() + ' ' + m.toUpperCase();
-}
-
-function getSemanaTexto() {
-  var hoy    = new Date();
-  var dia    = hoy.getDay();
-  var lunes  = new Date(hoy); lunes.setDate(hoy.getDate()-(dia===0?6:dia-1));
-  var domingo= new Date(lunes); domingo.setDate(lunes.getDate()+6);
-  var m      = MESES_NOMBRE[domingo.getMonth()];
-  return lunes.getDate() + ' - ' + domingo.getDate() + ' ' + m.toUpperCase() + ' ' + domingo.getFullYear();
-}
-
-function esDiaDestacado(fecha_str) {
-  // Devuelve true si es viernes, sábado o domingo
-  try {
-    var parts = (fecha_str||'').split('-');
-    if (parts.length === 3) {
-      var d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
-      var dia = d.getDay();
-      return dia === 0 || dia === 5 || dia === 6; // dom, vie, sab
+  if (esPropio) {
+    if (tramos_peligrosos_def.length>0) {
+      conclusiones.push({ico:'🛡️', txt:'En los minutos '+tramos_peligrosos_def.join(' y ')+' somos más vulnerables defensivamente — trabajar la intensidad y la concentración en esos tramos'});
     }
-  } catch(e) {}
-  return false;
-}
-
-function filaTabla(eq, partido) {
-  if (!partido) {
-    return '<tr><td class="td-cat">' + eq.cat + '</td>' +
-      '<td colspan="4" class="td-none">SIN PARTIDO ESTA SEMANA</td>' +
-      '<td></td></tr>';
-  }
-  var es_local  = partido.condicion === 'Local';
-  var SILOS = 'LOS SILOS CF-PROMISES VALENCIA';
-  var rival_raw = (partido.rival||'');
-  var rival_limpio = rival_raw;
-  // El partido viene como "Equipo A  -  Equipo B" — separar por doble espacio + guion
-  if (rival_raw.indexOf('  -  ') !== -1) {
-    var partes = rival_raw.split('  -  ');
-    for (var pi = 0; pi < partes.length; pi++) {
-      if (partes[pi].toLowerCase().indexOf('silos') === -1 && partes[pi].trim().length > 2) {
-        rival_limpio = partes[pi].trim();
-        break;
-      }
+    if (pct_gana_marca1!==null && pct_gana_marca1>=65) {
+      conclusiones.push({ico:'⚽', txt:'Cuando marcamos primero ganamos el '+pct_gana_marca1+'% de las veces — buscar el gol rápido debe ser una prioridad táctica'});
     }
-  } else if (rival_raw.toLowerCase().indexOf('silos') !== -1) {
-    var partes2 = rival_raw.split(' - ');
-    for (var pi2 = 0; pi2 < partes2.length; pi2++) {
-      if (partes2[pi2].toLowerCase().indexOf('silos') === -1 && partes2[pi2].trim().length > 2) {
-        rival_limpio = partes2[pi2].trim();
-        break;
-      }
+    if (pct_pierde_vent!==null && pct_pierde_vent>=25) {
+      conclusiones.push({ico:'📉', txt:'Perdemos ventajas en el '+pct_pierde_vent+'% de los casos — trabajar la gestión del marcador favorable y la mentalidad de cierre'});
+    }
+    if (lv.visitante && lv.visitante.pct < lv.local.pct - 20) {
+      conclusiones.push({ico:'✈️', txt:'Nuestro rendimiento a domicilio ('+lv.visitante.pct+'%) está por debajo del de casa ('+lv.local.pct+'%) — preparar mejor los partidos fuera con una propuesta más clara'});
+    }
+    if (goleadores.length>0 && Math.round(goleadores[0].goles/GF*100)>=25) {
+      conclusiones.push({ico:'🎯', txt:goleadores[0].jugador+' genera el '+Math.round(goleadores[0].goles/GF*100)+'% de nuestros goles — fomentar la participación ofensiva del resto del equipo'});
+    }
+    if (disc.total_rojas>=3) {
+      conclusiones.push({ico:'🟥', txt:disc.total_rojas+' expulsiones esta temporada — mejorar el control emocional, especialmente en momentos de tensión'});
+    }
+    if (evolucion.mejora_ata) {
+      conclusiones.push({ico:'📈', txt:'Estamos mejorando en ataque en la segunda parte de la temporada — mantener la tendencia ofensiva'});
+    }
+    if (!evolucion.mejora_def && evolucion.gc_2a > evolucion.gc_1a) {
+      conclusiones.push({ico:'⚠️', txt:'La defensa ha empeorado en la segunda parte de la temporada ('+evolucion.gc_1a+' → '+evolucion.gc_2a+' GC/p) — reforzar el trabajo defensivo colectivo'});
+    }
+  } else {
+    if (tramos_peligrosos_def.length>0) {
+      conclusiones.push({ico:'⚡', txt:'Intensificar ataque en los minutos '+tramos_peligrosos_def.join(' y ')+' — ahí son más vulnerables defensivamente'});
+    }
+    if (goleadores.length>0 && Math.round(goleadores[0].goles/GF*100)>=20) {
+      conclusiones.push({ico:'🎯', txt:'Neutralizar a '+goleadores[0].jugador+' — '+goleadores[0].goles+' goles, el '+Math.round(goleadores[0].goles/GF*100)+'% del total'});
+    }
+    if (pct_gana_marca1!==null && pct_gana_marca1>=70) {
+      conclusiones.push({ico:'⚽', txt:'No conceder el primer gol — cuando marcan primero ganan el '+pct_gana_marca1+'% de las veces'});
+    }
+    if (pct_pierde_vent!==null && pct_pierde_vent<30) {
+      conclusiones.push({ico:'↗', txt:'Si vamos ganando al descanso, gestionar bien — solo remontan el '+(pct_remontada||'?')+'% de las veces'});
+    }
+    if (lv.visitante && lv.visitante.pct<40 && !partido.es_local) {
+      conclusiones.push({ico:'🏃', txt:'Partido fuera de casa — son débiles a domicilio ('+lv.visitante.pct+'% victorias). Salir a proponer desde el inicio'});
     }
   }
-  var local     = es_local ? SILOS : rival_limpio;
-  var visitante = es_local ? rival_limpio : SILOS;
-  var campo_cls = esCampoPropio(partido.campo) ? 'td-campo propio' : 'td-campo';
+  if (gc_p>=2.0) {
+    conclusiones.push({ico:'📈', txt:'Proponer juego ofensivo — encajan '+gc_p+' goles por partido. La defensa es su punto débil'});
+  }
+  if (racha_pts<=4) {
+    conclusiones.push({ico:'📉', txt:'Aprovechar su momento de bajón — solo '+racha_pts+' puntos en los últimos 5 partidos. La confianza estará baja'});
+  }
 
-  var fin_sem = esDiaDestacado(partido.fecha) ? ' fin-semana' : '';
-  return '<tr class="' + fin_sem + '">' +
-    '<td class="td-cat">' + eq.cat + '</td>' +
-    '<td class="td-dia">' + formatFechaHora(partido.fecha, partido.hora) + '</td>' +
-    '<td class="td-equipo' + (es_local ? ' nuestro' : '') + '">' + local + '</td>' +
-    '<td class="td-equipo' + (!es_local ? ' nuestro' : '') + '">' + visitante + '</td>' +
-    '<td class="' + campo_cls + '">' + (partido.campo||'-') + '</td>' +
-    '<td class="td-char">LIGA</td>' +
-  '</tr>';
+  return {
+    estadisticas: {
+      J:J, V:V, E:E, D:D, GF:GF, GC:GC,
+      pct_victorias: pct_v,
+      GF_partido: gf_p, GC_partido: gc_p,
+      puntos_partido: ptos_p,
+      porteria_cero: porteria_cero,
+      sin_marcar: sin_marcar,
+      min_primer_gol: avg_min_gol,
+      pct_gana_marcando_primero: pct_gana_marca1,
+      pct_pierde_encajando_primero: pct_pierde_enc1,
+      pct_remontada: pct_remontada,
+      pct_pierde_ventaja: pct_pierde_vent,
+      racha_5: racha_5,
+      racha_pts_5: racha_pts,
+      amarillas_partido: am_p
+    },
+    primera_segunda: {
+      // Si tenemos datos de partidos usarlos, si no calcular desde tramos
+      gf_1p: gf_1p > 0 ? gf_1p : ((gt['0-15']||0)+(gt['16-30']||0)+(gt['31-45']||0)),
+      gc_1p: gc_1p > 0 ? gc_1p : ((et['0-15']||0)+(et['16-30']||0)+(et['31-45']||0)),
+      gf_2p: gf_2p > 0 ? gf_2p : ((gt['46-60']||0)+(gt['61-75']||0)+(gt['76-90']||0)),
+      gc_2p: gc_2p > 0 ? gc_2p : ((et['46-60']||0)+(et['61-75']||0)+(et['76-90']||0))
+    },
+    local_visitante: lv,
+    evolucion: evolucion,
+    tramos: {goles: gt, encaja: et},
+    goleadores: goleadores.slice(0,8),
+    disciplina: disc,
+    patrones: patrones,
+    anomalias: anomalias,
+    conclusiones: conclusiones
+  };
 }
 
-function buildTabla(equipos, datos) {
-  var cabeceras = '<thead><tr>' +
-    '<th class="th-cat" style="width:20%">CATEGORÍA</th>' +
-    '<th style="width:13%">DIA - HORA</th>' +
-    '<th style="width:24%">LOCAL</th>' +
-    '<th style="width:24%">VISITANTE</th>' +
-    '<th style="width:14%">CAMPO / UBICACIÓN</th>' +
-    '<th style="width:5%">TIPO</th>' +
-  '</tr></thead>';
 
-  var filas = equipos.map(function(eq) {
-    return filaTabla(eq, datos[eq.key]);
-  }).join('');
 
-  return '<table class="tabla">' + cabeceras + '<tbody>' + filas + '</tbody></table>';
-}
+// ═══════════════════════════════════════════════════════════════════════
+// SCRAPING EQUIPO PROPIO
+// ═══════════════════════════════════════════════════════════════════════
 
-async function cargar() {
-  var datos = {};
-  var todos  = EQUIPOS_F11.concat(EQUIPOS_F8);
+function scrapearEquipoPropio(todos) {
+  var nombre_propio = CFG_SCRAPING.nombre_equipo;
+  var propio_key    = 'silos';
 
-  for (var i = 0; i < todos.length; i++) {
-    var eq = todos[i];
+  // Partidos jugados por Los Silos con resultado
+  var partidos_jugados = todos.filter(function(p) {
+    return p.es_silos && p.res !== 'Pendiente' && p.resultado && p.resultado !== '-';
+  });
+
+  // IDs de actas propias
+  var ids = partidos_jugados.map(function(p){ return p.id_partido; })
+    .filter(function(id,i,arr){ return id && arr.indexOf(id)===i; });
+
+  Logger.log('Actas propias a scrapear: ' + ids.length);
+
+  var gt={'0-15':0,'16-30':0,'31-45':0,'46-60':0,'61-75':0,'76-90':0};
+  var et={'0-15':0,'16-30':0,'31-45':0,'46-60':0,'61-75':0,'76-90':0};
+  var amarillas={}, rojas={}, goleadores={};
+  var total_am=0, total_ro=0, ok=0;
+  var partidos_detalle = [];
+
+  // Para análisis avanzados
+  var marca_primero_gana=0, marca_primero_total=0;
+  var encaja_primero_pierde=0, encaja_primero_total=0;
+  var remontadas=0, remontadas_int=0;
+  var pierde_vent=0, vent_total=0;
+  var porteria_cero=0, sin_marcar=0;
+  var min_primer_gol_total=0, min_primer_gol_count=0;
+  var jugadores_partidos = {}; // jugador -> {partidos, victorias}
+  var tarjetas_por_tramo = {'0-15':0,'16-30':0,'31-45':0,'46-60':0,'61-75':0,'76-90':0};
+  var tarj_seguidas_gc = 0, tarj_total_analizadas = 0; // correlación tarjeta→GC
+
+  ids.forEach(function(id_partido) {
     try {
-      var r = await fetch(WEBAPP_URL+'?action=proximos&categoria='+eq.key).then(function(r){return r.json();});
-      if (r.ok && r.proximos && r.proximos.length) {
-        datos[eq.key] = r.proximos[0];
+      var p_cal = partidos_jugados.filter(function(p){ return p.id_partido===id_partido; })[0];
+      if (!p_cal) return;
+
+      var url = 'https://ffcv.es/competiciones/api/partidos/ficha_partido_ajax.php?cod_partido=' + id_partido;
+      var resp = UrlFetchApp.fetch(url, {
+        method:'get', headers:{'User-Agent':'Mozilla/5.0','Accept':'application/json'}, muteHttpExceptions:true
+      });
+      if (resp.getResponseCode()!==200) return;
+      var data = JSON.parse(resp.getContentText('UTF-8'));
+      if (!data||!data.codacta) return;
+
+      // Detección robusta: comparar similitud de nombres
+      var somos_local = detectarLadoRival(
+        data.equipo_visitante || '',
+        data.equipo_local || '',
+        data.equipo_visitante || '',
+        nombre_propio
+      ) === false;
+      // Verificación adicional: si local contiene 'silos' más que visitante
+      var nLocal  = normalizar(data.equipo_local || '');
+      var nVisit  = normalizar(data.equipo_visitante || '');
+      var nPropio = normalizar(nombre_propio);
+      var simPropioLocal = similitud(nombre_propio, data.equipo_local || '');
+      var simPropioVisit = similitud(nombre_propio, data.equipo_visitante || '');
+      somos_local = simPropioLocal >= simPropioVisit;
+      Logger.log('Acta propia ' + id_partido + ': ' + data.equipo_local + ' vs ' + data.equipo_visitante + ' | somos ' + (somos_local ? 'LOCAL' : 'VISITANTE'));
+
+      var goles_nuestros = somos_local ? (data.goles_equipo_local||[])      : (data.goles_equipo_visitante||[]);
+      var goles_suyos    = somos_local ? (data.goles_equipo_visitante||[])   : (data.goles_equipo_local||[]);
+      var tarj_nuestras  = somos_local ? (data.tarjetas_equipo_local||[])    : (data.tarjetas_equipo_visitante||[]);
+      var jugadores_list = somos_local ? (data.jugadores_equipo_local||[])   : (data.jugadores_equipo_visitante||[]);
+
+      // Goles propios por tramo
+      var primer_gol_propio = null, primer_gol_rival = null;
+      var gf_1p=0, gf_2p=0, gc_1p=0, gc_2p=0;
+
+      goles_nuestros.forEach(function(g) {
+        var min = parseInt(g.minuto)||0;
+        var tramo = min<=15?'0-15':min<=30?'16-30':min<=45?'31-45':min<=60?'46-60':min<=75?'61-75':'76-90';
+        gt[tramo]++;
+        if (min<=45) gf_1p++; else gf_2p++;
+        if (primer_gol_propio===null) primer_gol_propio=min;
+        var gn=(g.nombre_jugador||'Desconocido').substring(0,25);
+        goleadores[gn]=(goleadores[gn]||0)+1;
+      });
+
+      // Goles en contra por tramo
+      goles_suyos.forEach(function(g) {
+        var min=parseInt(g.minuto)||0;
+        var tramo=min<=15?'0-15':min<=30?'16-30':min<=45?'31-45':min<=60?'46-60':min<=75?'61-75':'76-90';
+        et[tramo]++;
+        if (min<=45) gc_1p++; else gc_2p++;
+        if (primer_gol_rival===null) primer_gol_rival=min;
+      });
+
+      // Tarjetas propias
+      var goles_timeline = goles_suyos.map(function(g){ return {min:parseInt(g.minuto)||0,tipo:'gc'}; });
+      tarj_nuestras.forEach(function(t) {
+        var min=parseInt(t.minuto)||0;
+        var jug=(t.nombre_jugador||'Desconocido').substring(0,25);
+        var cod=String(t.codigo_tipo_amonestacion||'');
+        var seg=String(t.segunda_amarilla||'0');
+        var tramo=min<=15?'0-15':min<=30?'16-30':min<=45?'31-45':min<=60?'46-60':min<=75?'61-75':'76-90';
+        tarjetas_por_tramo[tramo]++;
+        if (cod==='101'||seg==='1') { total_ro++; rojas[jug]=(rojas[jug]||0)+1; }
+        else if (cod==='100') { total_am++; amarillas[jug]=(amarillas[jug]||0)+1; }
+        // Correlación: ¿hay GC en los 10 min siguientes a la tarjeta?
+        tarj_total_analizadas++;
+        var gc_siguiente = goles_timeline.filter(function(g){ return g.min>min && g.min<=min+10; }).length;
+        if (gc_siguiente>0) tarj_seguidas_gc++;
+      });
+
+      // Jugadores
+      (jugadores_list||[]).forEach(function(j) {
+        var nombre=(j.nombre||j.nombre_jugador||'').substring(0,25);
+        if (!nombre) return;
+        if (!jugadores_partidos[nombre]) jugadores_partidos[nombre]={partidos:0,victorias:0,empates:0,derrotas:0};
+        jugadores_partidos[nombre].partidos++;
+        if (p_cal.res==='V') jugadores_partidos[nombre].victorias++;
+        else if (p_cal.res==='E') jugadores_partidos[nombre].empates++;
+        else jugadores_partidos[nombre].derrotas++;
+      });
+
+      // Análisis dinámico
+      var gf=p_cal.gf, gc=p_cal.gc;
+      if (gf===0) sin_marcar++;
+      if (gc===0) porteria_cero++;
+
+      if (primer_gol_propio!==null && (primer_gol_rival===null || primer_gol_propio<primer_gol_rival)) {
+        marca_primero_total++;
+        if (p_cal.res==='V') marca_primero_gana++;
+        if (primer_gol_propio) { min_primer_gol_total+=primer_gol_propio; min_primer_gol_count++; }
       }
-    } catch(e) {}
+      if (primer_gol_rival!==null && (primer_gol_propio===null || primer_gol_rival<primer_gol_propio)) {
+        encaja_primero_total++;
+        if (p_cal.res==='D') encaja_primero_pierde++;
+      }
+
+      // Guardar detalle partido
+      partidos_detalle.push({
+        jornada: p_cal.jornada, j_num: p_cal.j_num,
+        rival: p_cal.rival, cond: p_cal.es_local?'L':'V',
+        gf:gf, gc:gc, res:p_cal.res,
+        gf_1p:gf_1p, gc_1p:gc_1p, gf_2p:gf_2p, gc_2p:gc_2p,
+        marca_primero: primer_gol_propio!==null && (primer_gol_rival===null||primer_gol_propio<primer_gol_rival),
+        encaja_primero: primer_gol_rival!==null && (primer_gol_propio===null||primer_gol_rival<primer_gol_propio)
+      });
+
+      ok++;
+      Utilities.sleep(400);
+    } catch(e) { Logger.log('Error acta propia ' + id_partido + ': ' + e.message); }
+  });
+
+  // Top jugadores por presencia
+  var top_jugadores = Object.keys(jugadores_partidos)
+    .map(function(k){ var d=jugadores_partidos[k]; return {jugador:k, partidos:d.partidos, victorias:d.victorias, pct_v:d.partidos>0?Math.round(d.victorias/d.partidos*100):0}; })
+    .sort(function(a,b){ return b.partidos-a.partidos; }).slice(0,12);
+
+  var am_sorted = Object.keys(amarillas).map(function(k){return {jugador:k,n:amarillas[k]};}).sort(function(a,b){return b.n-a.n;});
+  var gol_sorted = Object.keys(goleadores).map(function(k){return {jugador:k,goles:goleadores[k]};}).sort(function(a,b){return b.goles-a.goles;});
+
+  var pct_tarj_gc = tarj_total_analizadas>0 ? Math.round(tarj_seguidas_gc/tarj_total_analizadas*100) : 0;
+
+  return {
+    goles_por_tramo: gt, encaja_por_tramo: et,
+    total_amarillas: total_am, total_rojas: total_ro,
+    top_amarillas: am_sorted.slice(0,8),
+    reincidentes: am_sorted.filter(function(j){return j.n>=2;}),
+    tarjetas_por_tramo: tarjetas_por_tramo,
+    pct_tarj_seguida_gc: pct_tarj_gc,
+    actas_analizadas: ok,
+    top_goleadores: gol_sorted.slice(0,10),
+    jugadores_presencia: top_jugadores,
+    marca_primero_total: marca_primero_total, marca_primero_gana: marca_primero_gana,
+    encaja_primero_total: encaja_primero_total, encaja_primero_pierde: encaja_primero_pierde,
+    porteria_cero: porteria_cero, sin_marcar: sin_marcar,
+    min_primer_gol: min_primer_gol_count>0?Math.round(min_primer_gol_total/min_primer_gol_count):null,
+    partidos_detalle: partidos_detalle
+  };
+}
+
+function guardarInformePropio(partidos_jugados, actas) {
+  // Calcular estadísticas usando el motor existente
+  var partidos_fmt = partidos_jugados.map(function(p){
+    return {gf:p.gf, gc:p.gc, res:p.res, cond:p.es_local?'L':'V',
+            gf_1p:0, gc_1p:0, gf_2p:0, gc_2p:0,
+            marca_primero:false, encaja_primero:false, iba_ganando:false};
+  });
+
+  // Enriquecer con datos de actas si disponibles
+  if (actas && actas.partidos_detalle) {
+    actas.partidos_detalle.forEach(function(a) {
+      var idx = partidos_fmt.findIndex ? partidos_fmt.findIndex(function(p){return p.gf===a.gf&&p.gc===a.gc&&p.cond===(a.cond);}) : -1;
+      if (idx>=0) {
+        partidos_fmt[idx].gf_1p=a.gf_1p||0; partidos_fmt[idx].gc_1p=a.gc_1p||0;
+        partidos_fmt[idx].gf_2p=a.gf_2p||0; partidos_fmt[idx].gc_2p=a.gc_2p||0;
+        partidos_fmt[idx].marca_primero=a.marca_primero||false;
+        partidos_fmt[idx].encaja_primero=a.encaja_primero||false;
+      }
+    });
   }
 
-  var semana = getSemanaTexto();
-  var ahora  = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var partido_dummy = {es_local:true, rival:'', j_num:0};
+  var analisis = calcularInformeCompleto(partido_dummy, partidos_fmt, actas ? {
+    encaja_por_tramo: actas.encaja_por_tramo,
+    goles_por_tramo:  actas.goles_por_tramo,
+    goleadores:       actas.top_goleadores||[],
+    tarjetas: {
+      total_amarillas: actas.total_amarillas,
+      total_rojas:     actas.total_rojas,
+      top_amarillas:   actas.top_amarillas,
+      reincidentes:    actas.reincidentes
+    },
+    actas_analizadas: actas.actas_analizadas
+  } : null, 'propio');
 
-  var html = '<div class="doc">' +
-    // HEADER
-    '<div class="doc-header">' +
-      '<div class="hdr-logo-left">' +
-        '<img src="data:image/png;base64,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" style="width:54px;height:54px;object-fit:contain">' +
-      '</div>' +
-      '<div class="hdr-center">' +
-        '<div class="hdr-club">LOS SILOS CF — PROMISES VALENCIA</div>' +
-        '<div class="hdr-semana">SEMANA ' + semana + '</div>' +
-      '</div>' +
-      '<div class="hdr-ffcv"><img src="data:image/png;base64,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" style="width:38px;height:38px;object-fit:contain"></div>' +
-      '<div class="hdr-logo-right">' +
-        '<div class="pat-label">Patrocinadores</div>' +
-        '<img src="data:image/png;base64,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" style="max-width:78px;max-height:44px;object-fit:contain">' +
-      '</div>' +
-    '</div>' +
+  var json_data = {
+    equipo: CFG_SCRAPING.nombre_equipo,
+    estadisticas:    analisis.estadisticas,
+    local_visitante: analisis.local_visitante,
+    primera_segunda: analisis.primera_segunda,
+    evolucion:       analisis.evolucion,
+    tramos:          analisis.tramos,
+    goleadores:      analisis.goleadores,
+    disciplina:      analisis.disciplina,
+    patrones:        analisis.patrones,
+    anomalias:       analisis.anomalias,
+    conclusiones:    analisis.conclusiones,
+    jugadores_presencia: actas ? (actas.jugadores_presencia||[]) : [],
+    tarjetas_por_tramo:  actas ? (actas.tarjetas_por_tramo||{})  : {},
+    pct_tarj_seguida_gc: actas ? (actas.pct_tarj_seguida_gc||0) : 0,
+    min_primer_gol:      actas ? actas.min_primer_gol : null,
+    porteria_cero:       actas ? actas.porteria_cero : 0,
+    sin_marcar:          actas ? actas.sin_marcar : 0,
+    actas_analizadas:    actas ? actas.actas_analizadas : 0
+  };
 
-    // F11
-    '<div class="seccion">' +
-      '<div class="sec-titulo f11">⚽ FÚTBOL 11</div>' +
-      buildTabla(EQUIPOS_F11, datos) +
-    '</div>' +
-
-    '<div class="sep"></div>' +
-
-    // F8
-    '<div class="seccion">' +
-      '<div class="sec-titulo f8">🏃 FÚTBOL 8</div>' +
-      buildTabla(EQUIPOS_F8, datos) +
-    '</div>' +
-
-    // FOOTER
-    '<div class="doc-footer">' +
-      '<span>⚽ Los Silos CF — Promises Valencia - Temporada 2025/26 · Burjassot</span>' +
-      '<span>Generado: ' + ahora + '</span>' +
-    '</div>' +
-  '</div>';
-
-  document.getElementById('documento').innerHTML = html;
-  document.getElementById('documento').style.display = 'block';
-  document.getElementById('loading').style.display   = 'none';
+  var cache = obtenerOCrearHoja('Propio_Cache');
+  cache.clearContents();
+  cache.appendRow(['equipo','json_data','timestamp']);
+  cache.appendRow([CFG_SCRAPING.nombre_equipo, JSON.stringify(json_data), new Date()]);
+  Logger.log('Informe propio guardado: ' + partidos_jugados.length + ' partidos, ' + (actas?actas.actas_analizadas:0) + ' actas');
 }
 
-window.addEventListener('DOMContentLoaded', cargar);
-
-function abrirModalEmail() {
-  document.getElementById('modal-email').style.display = 'flex';
-}
-function cerrarModalEmail() {
-  document.getElementById('modal-email').style.display = 'none';
-}
-
-async function enviarEmail() {
-  var email  = document.getElementById('email-dest').value.trim();
-  var nombre = document.getElementById('email-nombre').value.trim();
-  if (!email || !email.includes('@')) { alert('Introduce un email válido'); return; }
-  var btn = event.target;
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
+function getInformePropio() {
   try {
-    var r = await fetch(WEBAPP_URL + '?action=enviar_calendario&email=' + encodeURIComponent(email) + '&nombre=' + encodeURIComponent(nombre)).then(function(r){return r.json();});
-    if (r.ok) { alert('✅ Calendario enviado a ' + email); cerrarModalEmail(); }
-    else { alert('Error: ' + (r.error||'No se pudo enviar')); }
-  } catch(e) { alert('Error de conexión'); }
-  btn.textContent = 'Enviar';
-  btn.disabled = false;
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Propio_Cache');
+    if (!hoja||hoja.getLastRow()<2) return jsonResponse({ok:false, error:'Sin datos. Genera el informe primero.'});
+    var datos = hoja.getDataRange().getValues();
+    return jsonResponse({ok:true, data:JSON.parse(datos[1][1]), generado:String(datos[1][2])});
+  } catch(err) {
+    return jsonResponse({ok:false, error:err.message});
+  }
 }
 
-function compartirWhatsApp() {
-  var semana = document.querySelector('.hdr-semana') ? document.querySelector('.hdr-semana').textContent : 'esta semana';
-  var msg = '\u26BD *LOS SILOS CF \u2014 PROMISES VALENCIA*\n\n\uD83D\uDCC5 *' + semana + '*\n\nConsulta el calendario completo de partidos:\nhttps://danielet21.github.io/lossilos-club-app/calendario_semanal.html\n\n_Los Silos CF \u00B7 Burjassot_';
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+
+// ═══════════════════════════════════════════════════════════════════════
+// GOOGLE DRIVE — SUBIDA DE FOTOS Y BORRADO AUTOMÁTICO
+// ═══════════════════════════════════════════════════════════════════════
+
+var DRIVE_FOLDER_NAME = 'Los Silos CF - Scouting';
+var DRIVE_FICHAS_FOLDER = 'Los Silos CF - Fichas Partido';
+var DIAS_EXPIRACION = 7;
+
+function obtenerCarpeta(nombre) {
+  var folders = DriveApp.getFoldersByName(nombre);
+  if (folders.hasNext()) return folders.next();
+  return DriveApp.createFolder(nombre);
 }
-</script>
 
-<!-- MODAL EMAIL -->
+function subirFotoDrive(base64data, nombreArchivo, carpetaNombre) {
+  try {
+    var carpeta = obtenerCarpeta(carpetaNombre);
+    var decoded = Utilities.base64Decode(base64data.split(',').pop());
+    var blob    = Utilities.newBlob(decoded, 'image/jpeg', nombreArchivo);
+    var file    = carpeta.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return {ok: true, url: 'https://drive.google.com/uc?id=' + file.getId(), id: file.getId()};
+  } catch(e) {
+    return {ok: false, error: e.message};
+  }
+}
 
-<div id="modal-email" style="display:none;position:fixed;inset:0;background:#0007;z-index:100;align-items:flex-end;justify-content:center">
-  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;max-width:500px">
-    <h2 style="font-size:17px;font-weight:700;margin-bottom:4px">📧 Enviar calendario por email</h2>
-    <p style="font-size:13px;color:#999;margin-bottom:14px">El calendario se enviará al destinatario indicado</p>
-    <div style="margin-bottom:10px">
-      <label style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;display:block;margin-bottom:4px">Email destinatario</label>
-      <input type="email" id="email-dest" placeholder="ejemplo@gmail.com" style="width:100%;padding:12px 14px;border:.5px solid #ddd;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
-    </div>
-    <div style="margin-bottom:10px">
-      <label style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;display:block;margin-bottom:4px">Nombre (opcional)</label>
-      <input type="text" id="email-nombre" placeholder="Director deportivo" style="width:100%;padding:12px 14px;border:.5px solid #ddd;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
-    </div>
-    <button onclick="enviarEmail()" style="width:100%;padding:14px;background:#1A3A6B;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px">Enviar</button>
-    <button onclick="cerrarModalEmail()" style="width:100%;padding:12px;background:#f0f4f8;color:#666;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">Cancelar</button>
-  </div>
-</div>
-</body>
-</html>
+function borrarFotosAntiguas() {
+  var ahora = new Date();
+  [DRIVE_FOLDER_NAME, DRIVE_FICHAS_FOLDER].forEach(function(nombre) {
+    var folders = DriveApp.getFoldersByName(nombre);
+    if (!folders.hasNext()) return;
+    var carpeta = folders.next();
+    var files   = carpeta.getFiles();
+    var borrados = 0;
+    while (files.hasNext()) {
+      var file = files.next();
+      var dias = (ahora - file.getDateCreated()) / (1000*60*60*24);
+      if (dias >= DIAS_EXPIRACION) { file.setTrashed(true); borrados++; }
+    }
+    Logger.log('Borrados ' + borrados + ' archivos de ' + nombre);
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRIGGERS AUTOMÁTICOS
+// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════
+// EQUIPOS DEL CLUB — CONFIGURACIÓN F11 COMPLETA
+// ═══════════════════════════════════════════════════════════════════════
+
+var EQUIPOS_CLUB_F11 = [
+  {
+    categoria: 'amateur', nombre: "Los Silos C.F. - Promises Valencia 'A'",
+    id_equipo: '19198', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509180', id_torneo: '29509188',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'juvenil_a', nombre: "Juvenil A",
+    id_equipo: '13966', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509159', id_torneo: '30667368',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'juvenil_b', nombre: "Juvenil B",
+    id_equipo: '21564', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509159', id_torneo: '30667650',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'B'"
+  },
+  {
+    categoria: 'cadete_a', nombre: "Cadete A",
+    id_equipo: '14047', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509453', id_torneo: '29509457',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'cadete_b', nombre: "Cadete B",
+    id_equipo: '900438565', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509506', id_torneo: '904161421',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'B'"
+  },
+  {
+    categoria: 'cadete_femenino', nombre: "Cadete Femenino",
+    id_equipo: '903807452', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509156', id_torneo: '904299258',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'infantil_a', nombre: "Infantil A",
+    id_equipo: '14049', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509520', id_torneo: '904202308',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'infantil_b', nombre: "Infantil B",
+    id_equipo: '14048', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509520', id_torneo: '904202439',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'B'"
+  },
+  {
+    categoria: 'infantil_femenino', nombre: "Infantil Femenino",
+    id_equipo: '903807456', id_temp: '21', id_modalidad: '33327',
+    id_competicion: '29509157', id_torneo: '904301088',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  }
+];
+
+function buscarEquiposClub() {
+  Logger.log('Configuracion F11 cargada: ' + EQUIPOS_CLUB_F11.length + ' equipos');
+  var hoja = obtenerOCrearHoja('Equipos_Club');
+  hoja.clearContents();
+  hoja.appendRow(['categoria','nombre','id_equipo','id_temp','id_modalidad','id_competicion','id_torneo']);
+  formatearCabecera(hoja);
+  EQUIPOS_CLUB_F11.forEach(function(e) {
+    hoja.appendRow([e.categoria, e.nombre, e.id_equipo, e.id_temp, e.id_modalidad, e.id_competicion, e.id_torneo]);
+    Logger.log(e.categoria + ' | comp=' + e.id_competicion + ' torn=' + e.id_torneo);
+  });
+  Logger.log('Equipos guardados en hoja Equipos_Club');
+  return EQUIPOS_CLUB_F11.length;
+}
+
+
+var EQUIPOS_CLUB_F8 = [
+  {
+    categoria: 'alevin_a', nombre: "Alevín A",
+    id_equipo: '14050', id_temp: '21', id_modalidad: '33345',
+    id_competicion: '29509572', id_torneo: '905025215',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'alevin_b', nombre: "Alevín B",
+    id_equipo: '14051', id_temp: '21', id_modalidad: '33345',
+    id_competicion: '29509572', id_torneo: '905025238',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'B'"
+  },
+  {
+    categoria: 'benjamin_a', nombre: "Benjamín A",
+    id_equipo: '14054', id_temp: '21', id_modalidad: '33345',
+    id_competicion: '29509612', id_torneo: '905027464',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'benjamin_b', nombre: "Benjamín B",
+    id_equipo: '903807229', id_temp: '21', id_modalidad: '33345',
+    id_competicion: '29509669', id_torneo: '905028197',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'B'"
+  },
+  {
+    categoria: 'prebenjamin_a', nombre: "Prebenjamín A",
+    id_equipo: '14058', id_temp: '21', id_modalidad: '33345',
+    id_competicion: '29531322', id_torneo: '905028261',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  },
+  {
+    categoria: 'prebenjamin_b', nombre: "Prebenjamín B",
+    id_equipo: '296992', id_temp: '21', id_modalidad: '33345',
+    id_competicion: '29531322', id_torneo: '905028260',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'B'"
+  },
+  {
+    categoria: 'alevin_femenino', nombre: "Alevín Femenino",
+    id_equipo: '900438569', id_temp: '21', id_modalidad: '33387',
+    id_competicion: '29509676', id_torneo: '905114029',
+    nombre_ffcv: "Los Silos C.F. - Promises Valencia 'A'"
+  }
+];
+
+// Funciones scraping F8
+function scrapingAlevinA()        { scrapingEquipoF8Index(0); }
+function scrapingAlevinB()        { scrapingEquipoF8Index(1); }
+function scrapingBenjaminA()      { scrapingEquipoF8Index(2); }
+function scrapingBenjaminB()      { scrapingEquipoF8Index(3); }
+function scrapingPrebenjaminA()   { scrapingEquipoF8Index(4); }
+function scrapingPrebenjaminB()   { scrapingEquipoF8Index(5); }
+function scrapingAlevinFemenino() { scrapingEquipoF8Index(6); }
+
+function scrapingTodosF8() {
+  EQUIPOS_CLUB_F8.forEach(function(eq, i) { scrapingEquipoF8Index(i); });
+}
+
+function scrapingEquipoF8Index(i) {
+  var eq = EQUIPOS_CLUB_F8[i];
+  if (!eq) return;
+  Logger.log('=== SCRAPING F8 ' + eq.nombre + ' === ' + new Date());
+  try {
+    // Cambiar CFG temporalmente
+    var old_cfg = {
+      id_temp: CFG_SCRAPING.id_temp, id_modalidad: CFG_SCRAPING.id_modalidad,
+      id_competicion: CFG_SCRAPING.id_competicion, id_torneo: CFG_SCRAPING.id_torneo,
+      nombre_equipo: CFG_SCRAPING.nombre_equipo
+    };
+    CFG_SCRAPING.id_temp        = eq.id_temp;
+    CFG_SCRAPING.id_modalidad   = eq.id_modalidad;
+    CFG_SCRAPING.id_competicion = eq.id_competicion;
+    CFG_SCRAPING.id_torneo      = eq.id_torneo;
+    CFG_SCRAPING.nombre_equipo  = eq.nombre_ffcv;
+
+    var calendar = scrapearCalendario();
+
+    // Restaurar CFG
+    CFG_SCRAPING.id_temp        = old_cfg.id_temp;
+    CFG_SCRAPING.id_modalidad   = old_cfg.id_modalidad;
+    CFG_SCRAPING.id_competicion = old_cfg.id_competicion;
+    CFG_SCRAPING.id_torneo      = old_cfg.id_torneo;
+    CFG_SCRAPING.nombre_equipo  = old_cfg.nombre_equipo;
+
+    if (!calendar || !calendar.length) { Logger.log('Sin datos F8 ' + eq.nombre); return; }
+
+    // Próximos partidos
+    var proximos = obtenerProximosPartidos(calendar, 2);
+    guardarProximosPartidosEquipo(eq.categoria, proximos);
+
+    // Informe propio básico
+    var jugados = calendar.filter(function(p){ return p.es_silos && p.res !== 'Pendiente'; });
+    var actas   = scrapearEquipoPropioDesdeCalendario(calendar, eq.nombre_ffcv);
+    guardarInformePropioEquipo(eq.categoria, jugados, actas);
+
+    // Plantilla jugadores
+    extraerPlantillaEquipo(eq);
+
+    Logger.log('=== OK F8: ' + eq.nombre + ' ===');
+    Utilities.sleep(500);
+  } catch(e) {
+    Logger.log('ERROR F8 ' + eq.nombre + ': ' + e.message);
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// GESTIÓN MANUAL DE PLANTILLA
+// ═══════════════════════════════════════════════════════════════════════
+
+var ESTADOS_JUGADOR = ['activo','cedido_arriba','baja_temporal','baja_def','solo_entrena'];
+
+function getPlantillaCompleta(categoria) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Plantilla_' + categoria);
+    if (!hoja || hoja.getLastRow() < 2) return jsonResponse({ok:false, error:'Sin plantilla'});
+    var datos = hoja.getDataRange().getValues();
+    var jugadores = [];
+    for (var i = 1; i < datos.length; i++) {
+      var fila = datos[i];
+      if (!fila[0]) continue;
+      jugadores.push({
+        nombre:    fila[0],
+        apariciones: fila[1] || 0,
+        categoria: fila[2] || categoria,
+        estado:    fila[4] || 'activo',
+        notas:     fila[5] || '',
+        manual:    fila[6] === true || fila[6] === 'true'
+      });
+    }
+    return jsonResponse({ok:true, jugadores:jugadores, categoria:categoria});
+  } catch(e) {
+    return jsonResponse({ok:false, error:e.message});
+  }
+}
+
+function actualizarJugador(categoria, nombre, estado, notas) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Plantilla_' + categoria);
+    if (!hoja) return jsonResponse({ok:false, error:'Sin hoja'});
+
+    // Asegurar cabecera con columnas extra
+    if (hoja.getLastRow() === 0) {
+      hoja.appendRow(['Jugador','Apariciones','Categoria','Actualizado','Estado','Notas','Manual']);
+      formatearCabecera(hoja);
+    } else if (hoja.getLastColumn() < 7) {
+      // Añadir cabeceras faltantes si no existen
+      var cab = hoja.getRange(1, 1, 1, 7).getValues()[0];
+      if (!cab[4]) hoja.getRange(1,5).setValue('Estado');
+      if (!cab[5]) hoja.getRange(1,6).setValue('Notas');
+      if (!cab[6]) hoja.getRange(1,7).setValue('Manual');
+    }
+
+    var datos = hoja.getDataRange().getValues();
+    var found = false;
+    for (var i = 1; i < datos.length; i++) {
+      if (datos[i][0] === nombre) {
+        hoja.getRange(i+1, 5).setValue(estado);
+        hoja.getRange(i+1, 6).setValue(notas || '');
+        hoja.getRange(i+1, 4).setValue(new Date());
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      hoja.appendRow([nombre, 0, categoria, new Date(), estado, notas || '', true]);
+    }
+
+    // Actualizar cache JSON
+    actualizarCachePlantilla(categoria, hoja);
+    Logger.log('Jugador actualizado: ' + nombre + ' → ' + estado);
+    return jsonResponse({ok:true});
+  } catch(e) {
+    return jsonResponse({ok:false, error:e.message});
+  }
+}
+
+function añadirJugador(categoria, nombre, estado, notas) {
+  return actualizarJugador(categoria, nombre, estado || 'activo', notas);
+}
+
+function actualizarCachePlantilla(categoria, hoja) {
+  var datos = hoja.getDataRange().getValues();
+  var activos = [];
+  for (var i = 1; i < datos.length; i++) {
+    if (!datos[i][0]) continue;
+    var estado = datos[i][4] || 'activo';
+    if (estado !== 'baja_def') {
+      activos.push({
+        nombre:  datos[i][0],
+        estado:  estado,
+        notas:   datos[i][5] || '',
+        manual:  datos[i][6] === true || datos[i][6] === 'true'
+      });
+    }
+  }
+  // Guardar en Plantillas_Cache
+  var ss    = SpreadsheetApp.openById(SS_ID);
+  var cache = ss.getSheetByName('Plantillas_Cache');
+  if (!cache) { cache = ss.insertSheet('Plantillas_Cache'); cache.appendRow(['categoria','jugadores','timestamp']); }
+  var filas = cache.getDataRange().getValues();
+  var json  = JSON.stringify(activos.filter(function(j){ return j.estado==='activo'||j.estado==='cedido_arriba'||j.estado==='solo_entrena'; }).map(function(j){return j.nombre;}));
+  var found = false;
+  for (var i = 1; i < filas.length; i++) {
+    if (filas[i][0] === categoria) {
+      cache.getRange(i+1,2).setValue(json);
+      cache.getRange(i+1,3).setValue(new Date());
+      found = true; break;
+    }
+  }
+  if (!found) cache.appendRow([categoria, json, new Date()]);
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// CALENDARIO SEMANAL — EMAIL AUTOMÁTICO LOS MARTES
+// ═══════════════════════════════════════════════════════════════════════
+
+var EMAILS_CALENDARIO = [
+  'lossiloscf@gmail.com'  // Añadir más emails separados por coma
+];
+
+function enviarCalendarioSemanal(emails_extra) {
+  Logger.log('=== GENERANDO CALENDARIO SEMANAL ===');
+
+  var equipos_f11 = [
+    {cat:'Amateur A - Tercera FFCV',      key:'amateur'},
+    {cat:'Juvenil A - 3ª FFCV Juvenil',  key:'juvenil_a'},
+    {cat:'Juvenil B - 3ª FFCV Juvenil',  key:'juvenil_b'},
+    {cat:'Cadete A - 1ª Regional',        key:'cadete_a'},
+    {cat:'Cadete B - 2ª Regional',        key:'cadete_b'},
+    {cat:'Cadete Femenino',               key:'cadete_femenino'},
+    {cat:'Infantil A - 2ª Regional',      key:'infantil_a'},
+    {cat:'Infantil B - 2ª Regional',      key:'infantil_b'},
+    {cat:'Infantil Femenino',             key:'infantil_femenino'}
+  ];
+
+  var equipos_f8 = [
+    {cat:'Alevín A 2º Año',    key:'alevin_a'},
+    {cat:'Alevín B 2º Año',    key:'alevin_b'},
+    {cat:'Benjamín A 2º Año',  key:'benjamin_a'},
+    {cat:'Benjamín B 1er Año', key:'benjamin_b'},
+    {cat:'Prebenjamín A',      key:'prebenjamin_a'},
+    {cat:'Prebenjamín B',      key:'prebenjamin_b'},
+    {cat:'Alevín Femenino',    key:'alevin_femenino'}
+  ];
+
+  // Calcular semana
+  var hoy    = new Date();
+  var lunes  = new Date(hoy); lunes.setDate(hoy.getDate() - (hoy.getDay()===0?6:hoy.getDay()-1));
+  var domingo= new Date(lunes); domingo.setDate(lunes.getDate()+6);
+  var meses  = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var semana = lunes.getDate() + ' al ' + domingo.getDate() + ' de ' + meses[domingo.getMonth()];
+
+  var BASE_URL = 'https://danielet21.github.io/lossilos-club-app/';
+
+  // Construir HTML del email
+  var html = '<div style="font-family:Arial,sans-serif;max-width:820px;margin:0 auto;border:2px solid #1A3A6B">';
+  // Header con logos
+  html += '<table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#0A1F3D,#1A3A6B);border-bottom:4px solid #C0392B">';
+  html += '<tr>';
+  html += '<td width="70" style="padding:10px;text-align:center"><img src="'+BASE_URL+'escudo.png" width="54" height="54" style="display:block" alt="Los Silos CF"></td>';
+  html += '<td style="text-align:center;padding:10px">';
+  html += '<div style="color:#fff;font-size:18px;font-weight:900;letter-spacing:2px;text-transform:uppercase">LOS SILOS CF — PROMISES VALENCIA</div>';
+  html += '<div style="color:#E8771A;font-size:20px;font-weight:900;margin-top:4px;letter-spacing:2px">SEMANA ' + semana.toUpperCase() + '</div>';
+  html += '</td>';
+  html += '<td width="50" style="padding:10px;text-align:center"><img src="'+BASE_URL+'ffcv.png" width="38" height="38" style="display:block;margin:0 auto" alt="FFCV"></td>';
+  html += '<td width="110" style="padding:8px;text-align:center;border-left:1px solid rgba(255,255,255,.2)">';
+  html += '<div style="color:rgba(255,255,255,.6);font-size:9px;text-transform:uppercase;margin-bottom:4px">Patrocinador</div>';
+  html += '<img src="'+BASE_URL+'clinica.png" width="90" style="display:block;margin:0 auto" alt="Clínica Los Silos">';
+  html += '</td>';
+  html += '</tr></table>';
+
+  function seccion(titulo, equipos, color) {
+    var rows = '';
+    equipos.forEach(function(eq) {
+      var hoja = SpreadsheetApp.openById(SS_ID).getSheetByName('Proximos_' + eq.key);
+      if (!hoja || hoja.getLastRow() < 2) {
+        rows += '<tr><td style="padding:8px;font-weight:700;color:#1A3A6B">' + eq.cat + '</td><td colspan="4" style="padding:8px;color:#999;font-style:italic">Sin partido próximo</td></tr>';
+        return;
+      }
+      var datos = hoja.getRange(2, 1, 1, 6).getValues()[0];
+      var jornada = datos[0]||'';
+      var cond    = datos[3]||'', rival=datos[4]||'', campo=datos[5]||'';
+      // Formatear fecha y hora correctamente
+      var fecha_raw = datos[1];
+      var hora_raw  = datos[2];
+      var fecha = '';
+      var hora  = '';
+      try {
+        var fd = new Date(fecha_raw);
+        if (!isNaN(fd.getTime())) {
+          var dias_sem = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+          var meses_n  = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+          fecha = dias_sem[fd.getDay()] + ' ' + fd.getDate() + ' ' + meses_n[fd.getMonth()];
+        } else { fecha = fecha_raw.toString(); }
+      } catch(ex) { fecha = fecha_raw ? fecha_raw.toString() : ''; }
+      try {
+        var hm = hora_raw.toString().match(/(\d{1,2}):(\d{2}):\d{2} GMT/);
+        if (hm) { hora = hm[1] + ':' + hm[2] + 'h'; }
+        else { var hd = new Date(hora_raw); hora = !isNaN(hd.getTime()) ? Utilities.formatDate(hd,'Europe/Madrid','HH:mm')+'h' : hora_raw.toString().substring(0,5); }
+      } catch(ex) { hora = hora_raw ? hora_raw.toString().substring(0,5) : ''; }
+      var local    = cond==='Local' ? 'LOS SILOS CF' : rival;
+      var visitante= cond==='Local' ? rival : 'LOS SILOS CF';
+      var bg_campo = campo.toLowerCase().indexOf('burjassot')!==-1||campo.toLowerCase().indexOf('oliveras')!==-1 ? '#FFF9C4' : '#fff';
+      var i_row = rows.split('<tr').length - 1;
+      var row_bg = i_row % 2 === 0 ? '#ffffff' : '#EEF2F8';
+      rows += '<tr style="background:'+row_bg+';border-bottom:1px solid #d5dde8">' +
+        '<td style="padding:6px 8px;font-weight:700;color:#0A1F3D;font-size:11px;border-left:3px solid #1A3A6B">' + eq.cat + '</td>' +
+        '<td style="padding:6px 8px;text-align:center;white-space:nowrap">' +
+          '<div style="font-size:12px;font-weight:900;color:#0A1F3D">' + fecha + '</div>' +
+          '<div style="font-size:12px;font-weight:900;color:#E8771A">' + hora + '</div>' +
+        '</td>' +
+        '<td style="padding:6px 8px;text-align:center;font-size:12px;font-weight:700;color:#333">' + local + '</td>' +
+        '<td style="padding:6px 8px;text-align:center;font-size:12px;font-weight:700;color:#333">' + visitante + '</td>' +
+        '<td style="padding:6px 8px;text-align:center;font-size:10px;background:'+bg_campo+'">' + campo + '</td>' +
+      '</tr>';
+    });
+
+    return '<h2 style="background:'+color+';color:#fff;padding:8px 16px;margin:0;font-size:13px;letter-spacing:3px;text-align:center">' + titulo + '</h2>' +
+      '<table style="width:100%;border-collapse:collapse;font-family:Arial">' +
+      '<thead><tr style="background:#1A3A6B">' +
+        '<th style="padding:7px 8px;color:#fff;text-align:left;font-size:10px;letter-spacing:.5px">CATEGORÍA</th>' +
+        '<th style="padding:7px 8px;color:#fff;font-size:10px;letter-spacing:.5px">DÍA · HORA</th>' +
+        '<th style="padding:7px 8px;color:#fff;font-size:10px;letter-spacing:.5px">LOCAL</th>' +
+        '<th style="padding:7px 8px;color:#fff;font-size:10px;letter-spacing:.5px">VISITANTE</th>' +
+        '<th style="padding:7px 8px;color:#fff;font-size:10px;letter-spacing:.5px">CAMPO</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody></table>';
+  }
+
+  html += seccion('FÚTBOL 11', equipos_f11, '#C0392B');
+  html += seccion('FÚTBOL 8', equipos_f8, '#1E7B34');
+
+  html += '<div style="padding:14px 16px;text-align:center;background:#f5f5f5;border-top:1px solid #ddd">';
+  html += '<a href="https://danielet21.github.io/lossilos-club-app/calendario_semanal.html" ';
+  html += 'style="display:inline-block;background:#1A3A6B;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin-right:8px">📅 Ver calendario online</a>';
+  html += '</div>';
+  html += '<div style="padding:8px 16px;background:linear-gradient(135deg,#0A1F3D,#1A3A6B);border-top:2px solid #C0392B;text-align:center;font-size:10px;color:rgba(255,255,255,.6)">';
+  html += 'Los Silos CF — Promises Valencia · Temporada 2025/26 · Burjassot</div>';
+  html += '</div>';
+
+  // Enviar email
+  var lista = (emails_extra && emails_extra.length) ? emails_extra : EMAILS_CALENDARIO;
+  lista.forEach(function(email) {
+    try {
+      GmailApp.sendEmail(email,
+        '⚽ Los Silos CF — Partidos semana ' + semana,
+        'Ver en HTML',
+        {htmlBody: html, name: 'Los Silos CF'}
+      );
+      Logger.log('Email enviado a: ' + email);
+    } catch(e) {
+      Logger.log('Error email ' + email + ': ' + e.message);
+    }
+  });
+
+  Logger.log('=== CALENDARIO ENVIADO ===');
+}
+
+
+function crearTriggers() {
+  // Eliminar triggers existentes
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    var fn = t.getHandlerFunction();
+    if (['scrapingCompleto','scrapingTodosEquipos','scrapingEquipos1','scrapingEquipos2','scrapingEquipos3','scrapingEquipos4','scrapingAmateur','scrapingJuvenilA','scrapingJuvenilB','scrapingCadeteA','scrapingCadeteB','scrapingCadeteFemenino','scrapingInfantilA','scrapingInfantilB','scrapingInfantilFemenino','borrarFotosAntiguas','enviarCalendarioSemanal'].indexOf(fn) !== -1) {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+
+  // Martes a las 9:00 — envío calendario semanal por email
+  ScriptApp.newTrigger('enviarCalendarioSemanal')
+    .timeBased().onWeekDay(ScriptApp.WeekDay.TUESDAY).atHour(9).create();
+
+  // Lunes — F11 en 4 grupos + F8
+  ScriptApp.newTrigger('scrapingEquipos1').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(11).nearMinute(0).create();
+  ScriptApp.newTrigger('scrapingEquipos2').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(11).nearMinute(15).create();
+  ScriptApp.newTrigger('scrapingEquipos3').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(11).nearMinute(30).create();
+  ScriptApp.newTrigger('scrapingEquipos4').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(11).nearMinute(45).create();
+  ScriptApp.newTrigger('scrapingTodosF8').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(12).nearMinute(0).create();
+
+  // Miércoles — igual
+  ScriptApp.newTrigger('scrapingEquipos1').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(11).nearMinute(0).create();
+  ScriptApp.newTrigger('scrapingEquipos2').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(11).nearMinute(15).create();
+  ScriptApp.newTrigger('scrapingEquipos3').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(11).nearMinute(30).create();
+  ScriptApp.newTrigger('scrapingEquipos4').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(11).nearMinute(45).create();
+  ScriptApp.newTrigger('scrapingTodosF8').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(12).nearMinute(0).create();
+
+  // Borrado fotos antiguas — cada día a las 3am
+  ScriptApp.newTrigger('borrarFotosAntiguas')
+    .timeBased().everyDays(1).atHour(3).create();
+
+  Logger.log('Triggers creados: scraping lunes y miércoles 11h, calendario martes 9h, borrado fotos diario 3am');
+}
+
+function crearTriggerBorradoAutomatico() {
+  // Eliminar triggers existentes del mismo nombre
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'borrarFotosAntiguas') ScriptApp.deleteTrigger(t);
+  });
+  // Crear trigger diario a las 3am
+  ScriptApp.newTrigger('borrarFotosAntiguas')
+    .timeBased().everyDays(1).atHour(3).create();
+  Logger.log('Trigger de borrado automático creado');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// GUARDAR SCOUTING MANUAL
+// ═══════════════════════════════════════════════════════════════════════
+
+function guardarScoutingManual(datos) {
+  var hoja = obtenerOCrearHoja('Scouting_Cache');
+  if (hoja.getLastRow() === 0) {
+    hoja.appendRow(['jornada','json_data','timestamp']);
+    formatearCabecera(hoja);
+  }
+  var jornada = parseInt(datos.jornada) || 0;
+  var json    = JSON.stringify(datos);
+  var filas   = hoja.getDataRange().getValues();
+  var found   = false;
+  for (var i = 1; i < filas.length; i++) {
+    if (parseInt(filas[i][0]) === jornada) {
+      hoja.getRange(i+1, 2).setValue(json);
+      hoja.getRange(i+1, 3).setValue(new Date());
+      found = true; break;
+    }
+  }
+  if (!found) hoja.appendRow([jornada, json, new Date()]);
+
+  // Actualizar Rival_Cache con el scouting para enriquecer el informe
+  enrichRivalCacheWithScouting(jornada, datos);
+}
+
+function enrichRivalCacheWithScouting(jornada, scouting) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Rival_Cache');
+    if (!hoja) return;
+    var filas = hoja.getDataRange().getValues();
+    for (var i = 1; i < filas.length; i++) {
+      if (parseInt(filas[i][0]) === jornada) {
+        var data = JSON.parse(filas[i][1]);
+        data.scouting = scouting;
+        hoja.getRange(i+1, 2).setValue(JSON.stringify(data));
+        hoja.getRange(i+1, 3).setValue(new Date());
+        Logger.log('Scouting integrado en informe J' + jornada);
+        return;
+      }
+    }
+  } catch(e) { Logger.log('Error enrich: ' + e.message); }
+}
+
+function getScoutingJornada(jornada) {
+  var ss   = SpreadsheetApp.openById(SS_ID);
+  var hoja = ss.getSheetByName('Scouting_Cache');
+  if (!hoja || hoja.getLastRow() < 2) return {ok: false};
+  var filas = hoja.getDataRange().getValues();
+  for (var i = 1; i < filas.length; i++) {
+    if (parseInt(filas[i][0]) === jornada) {
+      return {ok: true, data: JSON.parse(filas[i][1])};
+    }
+  }
+  return {ok: false};
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// SCRAPING MULTI-EQUIPO
+// ═══════════════════════════════════════════════════════════════════════
+
+
+
+// Una función por equipo para evitar timeout
+function scrapingAmateur()          { scrapingEquipoIndex(0); }
+function scrapingJuvenilA()         { scrapingEquipoIndex(1); }
+function scrapingJuvenilB()         { scrapingEquipoIndex(2); }
+function scrapingCadeteA()          { scrapingEquipoIndex(3); }
+function scrapingCadeteB()          { scrapingEquipoIndex(4); }
+function scrapingCadeteFemenino()   { scrapingEquipoIndex(5); }
+function scrapingInfantilA()        { scrapingEquipoIndex(6); }
+function scrapingInfantilB()        { scrapingEquipoIndex(7); }
+function scrapingInfantilFemenino() { scrapingEquipoIndex(8); }
+
+function scrapingEquipoIndex(i) {
+  var eq = EQUIPOS_CLUB_F11[i];
+  if (!eq) return;
+  Logger.log('=== SCRAPING ' + eq.nombre + ' === ' + new Date());
+  try {
+    var calendar = scrapearCalendarioEquipo({
+      id_temp: eq.id_temp, id_modalidad: eq.id_modalidad,
+      id_competicion: eq.id_competicion, id_torneo: eq.id_torneo,
+      nombre_equipo: eq.nombre_ffcv, base_url: 'https://resultadosffcv.isquad.es'
+    });
+    if (!calendar || !calendar.length) { Logger.log('Sin datos'); return; }
+    var proximos = obtenerProximosPartidos(calendar, 2);
+    guardarProximosPartidosEquipo(eq.categoria, proximos);
+    proximos.forEach(function(partido) {
+      if (partido.rival_nombre) {
+        var pR = obtenerPartidosRival(calendar, partido.rival_nombre);
+        var aR = scrapearActasRival(calendar, partido.rival_nombre);
+        guardarInformeRivalEquipo(eq.categoria, partido, pR, aR);
+      }
+    });
+    var jugados = calendar.filter(function(p){ return p.es_silos && p.res !== 'Pendiente'; });
+    var actas   = scrapearEquipoPropioDesdeCalendario(calendar, eq.nombre_ffcv);
+    guardarInformePropioEquipo(eq.categoria, jugados, actas);
+    // Extraer plantilla desde las actas del calendario ya scrapeado
+  var ids_jugados = calendar.filter(function(p){
+    return p.es_silos && p.id_partido && p.res !== 'Pendiente';
+  }).map(function(p){ return p.id_partido; })
+    .filter(function(id,i,arr){ return id && arr.indexOf(id)===i; });
+  extraerPlantillaEquipo(eq, ids_jugados.slice(0,12));
+  Logger.log('=== OK: ' + eq.nombre + ' ===');
+  } catch(e) { Logger.log('ERROR: ' + e.message); }
+}
+
+function scrapingEquipos1() { scrapingAmateur(); scrapingJuvenilA(); }
+function scrapingEquipos2() { scrapingJuvenilB(); scrapingCadeteA(); }
+function scrapingEquipos3() { scrapingCadeteB(); scrapingCadeteFemenino(); }
+function scrapingEquipos4() { scrapingInfantilA(); scrapingInfantilB(); scrapingInfantilFemenino(); }
+function scrapingTodosEquipos() { scrapingEquipos1(); scrapingEquipos2(); scrapingEquipos3(); scrapingEquipos4(); }
+
+
+function scrapearCalendarioEquipo(cfg) {
+  var url = cfg.base_url + '/calendario.php?id_temp=' + cfg.id_temp +
+            '&id_modalidad=' + cfg.id_modalidad +
+            '&id_competicion=' + cfg.id_competicion +
+            '&id_torneo=' + cfg.id_torneo;
+
+  // Guardar CFG original y usar la del equipo
+  var old_cfg = JSON.parse(JSON.stringify(CFG_SCRAPING));
+  CFG_SCRAPING.id_temp        = cfg.id_temp;
+  CFG_SCRAPING.id_modalidad   = cfg.id_modalidad;
+  CFG_SCRAPING.id_competicion = cfg.id_competicion;
+  CFG_SCRAPING.id_torneo      = cfg.id_torneo;
+  CFG_SCRAPING.nombre_equipo  = cfg.nombre_equipo;
+
+  var result = scrapearCalendario();
+
+  // Restaurar CFG original
+  CFG_SCRAPING.id_temp        = old_cfg.id_temp;
+  CFG_SCRAPING.id_modalidad   = old_cfg.id_modalidad;
+  CFG_SCRAPING.id_competicion = old_cfg.id_competicion;
+  CFG_SCRAPING.id_torneo      = old_cfg.id_torneo;
+  CFG_SCRAPING.nombre_equipo  = old_cfg.nombre_equipo;
+
+  return result;
+}
+
+function scrapearEquipoPropioDesdeCalendario(calendar, nombre_equipo) {
+  // Reutiliza scrapearEquipoPropio pero con el calendario ya cargado
+  var old_nombre = CFG_SCRAPING.nombre_equipo;
+  CFG_SCRAPING.nombre_equipo = nombre_equipo;
+  var result = scrapearEquipoPropio(calendar);
+  CFG_SCRAPING.nombre_equipo = old_nombre;
+  return result;
+}
+
+function guardarProximosPartidosEquipo(categoria, proximos) {
+  var nombre_hoja = 'Proximos_' + categoria;
+  var hoja = obtenerOCrearHoja(nombre_hoja);
+  hoja.clearContents();
+  hoja.appendRow(['Jornada','Fecha','Hora','Condicion','Rival','Campo','Actualizado']);
+  formatearCabecera(hoja);
+  proximos.forEach(function(p) {
+    // Limpiar rival — puede venir como "Los Silos X  -  Rival Y" cuando hay varios equipos propios
+    var rival_guardado = p.rival || '';
+    if (rival_guardado.indexOf('  -  ') !== -1) {
+      var partes = rival_guardado.split('  -  ');
+      for (var pi = 0; pi < partes.length; pi++) {
+        if (partes[pi].toLowerCase().indexOf('silos') === -1 && partes[pi].trim().length > 2) {
+          rival_guardado = partes[pi].trim();
+          break;
+        }
+      }
+    } else if (rival_guardado.toLowerCase().indexOf('silos') !== -1) {
+      var partes2 = rival_guardado.split(' - ');
+      for (var pi2 = 0; pi2 < partes2.length; pi2++) {
+        if (partes2[pi2].toLowerCase().indexOf('silos') === -1 && partes2[pi2].trim().length > 2) {
+          rival_guardado = partes2[pi2].trim();
+          break;
+        }
+      }
+    }
+    hoja.appendRow([p.jornada, p.fecha, p.hora, p.es_local ? 'Local' : 'Visitante', rival_guardado, p.campo, new Date()]);
+  });
+}
+
+function guardarInformeRivalEquipo(categoria, partido, partidos_rival, actas) {
+  // Reutiliza guardarInformeRival pero guarda en cache por categoría
+  var analisis = calcularInformeCompleto(partido, partidos_rival, actas ? {
+    encaja_por_tramo: actas.encaja_por_tramo,
+    goles_por_tramo:  actas.goles_por_tramo,
+    goleadores:       actas.top_goleadores || [],
+    tarjetas: {
+      total_amarillas: actas.total_amarillas,
+      total_rojas:     actas.total_rojas,
+      top_amarillas:   actas.top_amarillas,
+      reincidentes:    actas.reincidentes
+    },
+    actas_analizadas: actas.actas_analizadas,
+    marca_primero_total:    actas.marca_primero_total    || 0,
+    marca_primero_gana:     actas.marca_primero_gana     || 0,
+    encaja_primero_total:   actas.encaja_primero_total   || 0,
+    encaja_primero_pierde:  actas.encaja_primero_pierde  || 0,
+    porteria_cero:          actas.porteria_cero          || 0,
+    sin_marcar:             actas.sin_marcar             || 0
+  } : null);
+
+  var json_data = {
+    partido: {
+      rival: partido.rival, fecha: partido.fecha, hora: partido.hora,
+      campo: partido.campo, condicion: partido.es_local ? 'Local' : 'Visitante',
+      jornada: partido.jornada, j_num: partido.j_num
+    },
+    estadisticas:    analisis.estadisticas,
+    local_visitante: analisis.local_visitante,
+    primera_segunda: analisis.primera_segunda,
+    evolucion:       analisis.evolucion,
+    tramos:          analisis.tramos,
+    goleadores:      analisis.goleadores,
+    disciplina:      analisis.disciplina,
+    patrones:        analisis.patrones,
+    anomalias:       analisis.anomalias,
+    conclusiones:    analisis.conclusiones,
+    actas_analizadas: actas ? actas.actas_analizadas : 0
+  };
+
+  var nombre_cache = 'Rival_Cache_' + categoria;
+  var cache = obtenerOCrearHoja(nombre_cache);
+  if (cache.getLastRow() === 0) cache.appendRow(['jornada','json_data','timestamp']);
+  var filas = cache.getDataRange().getValues();
+  var found = false;
+  for (var i = 1; i < filas.length; i++) {
+    if (parseInt(filas[i][0]) === partido.j_num) {
+      cache.getRange(i+1, 2).setValue(JSON.stringify(json_data));
+      cache.getRange(i+1, 3).setValue(new Date());
+      found = true; break;
+    }
+  }
+  if (!found) cache.appendRow([partido.j_num, JSON.stringify(json_data), new Date()]);
+  Logger.log('Informe rival ' + categoria + ' J' + partido.j_num + ' guardado');
+}
+
+function guardarInformePropioEquipo(categoria, partidos_jugados, actas) {
+  var partidos_fmt = partidos_jugados.map(function(p){
+    return {gf:p.gf, gc:p.gc, res:p.res, cond:p.es_local?'L':'V',
+            gf_1p:0, gc_1p:0, gf_2p:0, gc_2p:0,
+            marca_primero:false, encaja_primero:false, iba_ganando:false};
+  });
+
+  var partido_dummy = {es_local:true, rival:'', j_num:0};
+  var analisis = calcularInformeCompleto(partido_dummy, partidos_fmt, actas ? {
+    encaja_por_tramo: actas.encaja_por_tramo,
+    goles_por_tramo:  actas.goles_por_tramo,
+    goleadores:       actas.top_goleadores || [],
+    tarjetas: {
+      total_amarillas: actas.total_amarillas,
+      total_rojas:     actas.total_rojas,
+      top_amarillas:   actas.top_amarillas,
+      reincidentes:    actas.reincidentes
+    },
+    actas_analizadas: actas.actas_analizadas
+  } : null, 'propio');
+
+  var json_data = {
+    equipo: categoria,
+    estadisticas:    analisis.estadisticas,
+    local_visitante: analisis.local_visitante,
+    primera_segunda: analisis.primera_segunda,
+    evolucion:       analisis.evolucion,
+    tramos:          analisis.tramos,
+    goleadores:      analisis.goleadores,
+    disciplina:      analisis.disciplina,
+    patrones:        analisis.patrones,
+    anomalias:       analisis.anomalias,
+    conclusiones:    analisis.conclusiones,
+    jugadores_presencia: actas ? (actas.jugadores_presencia||[]) : [],
+    tarjetas_por_tramo:  actas ? (actas.tarjetas_por_tramo||{}) : {},
+    pct_tarj_seguida_gc: actas ? (actas.pct_tarj_seguida_gc||0) : 0,
+    actas_analizadas:    actas ? actas.actas_analizadas : 0
+  };
+
+  var nombre_cache = 'Propio_Cache_' + categoria;
+  var cache = obtenerOCrearHoja(nombre_cache);
+  cache.clearContents();
+  cache.appendRow(['categoria','json_data','timestamp']);
+  cache.appendRow([categoria, JSON.stringify(json_data), new Date()]);
+  Logger.log('Informe propio ' + categoria + ' guardado');
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXTRACCIÓN DE PLANTILLAS DESDE FFCV
+// ═══════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXTRACCIÓN DE PLANTILLAS DESDE equipo_plantilla.php (FFCV)
+// ═══════════════════════════════════════════════════════════════════════
+
+function extraerPlantillaDesdeFFCV(eq) {
+  Logger.log('Extrayendo plantilla: ' + eq.nombre);
+
+  // Scrapear calendario completo de la competicion
+  var old_cfg = {
+    id_temp: CFG_SCRAPING.id_temp, id_modalidad: CFG_SCRAPING.id_modalidad,
+    id_competicion: CFG_SCRAPING.id_competicion, id_torneo: CFG_SCRAPING.id_torneo,
+    nombre_equipo: CFG_SCRAPING.nombre_equipo
+  };
+  CFG_SCRAPING.id_temp        = eq.id_temp;
+  CFG_SCRAPING.id_modalidad   = eq.id_modalidad;
+  CFG_SCRAPING.id_competicion = eq.id_competicion;
+  CFG_SCRAPING.id_torneo      = eq.id_torneo;
+  CFG_SCRAPING.nombre_equipo  = eq.nombre_ffcv;
+  var calendar = scrapearCalendario();
+  CFG_SCRAPING.id_temp        = old_cfg.id_temp;
+  CFG_SCRAPING.id_modalidad   = old_cfg.id_modalidad;
+  CFG_SCRAPING.id_competicion = old_cfg.id_competicion;
+  CFG_SCRAPING.id_torneo      = old_cfg.id_torneo;
+  CFG_SCRAPING.nombre_equipo  = old_cfg.nombre_equipo;
+
+  // IDs de partidos donde jugó nuestro equipo
+  var ids = calendar.filter(function(p){
+    return p.es_silos && p.id_partido && p.res !== 'Pendiente';
+  }).map(function(p){ return p.id_partido; })
+    .filter(function(id,i,arr){ return id && arr.indexOf(id)===i; });
+
+  Logger.log('Partidos a analizar: ' + ids.length);
+  if (!ids.length) return 0;
+
+  var jugadores = {};
+
+  ids.forEach(function(id_partido) {
+    try {
+      var url = 'https://ffcv.es/competiciones/api/partidos/ficha_partido_ajax.php?cod_partido=' + id_partido;
+      var resp = UrlFetchApp.fetch(url, {
+        method:'get', headers:{'User-Agent':'Mozilla/5.0','Accept':'application/json'}, muteHttpExceptions:true
+      });
+      if (resp.getResponseCode() !== 200) return;
+      var data = JSON.parse(resp.getContentText('UTF-8'));
+      if (!data || !data.codacta) return;
+
+      // Detectar lado con similitud
+      var simLocal = similitud(eq.nombre_ffcv, data.equipo_local || '');
+      var simVisit = similitud(eq.nombre_ffcv, data.equipo_visitante || '');
+      var somos_local = simLocal >= simVisit;
+
+      // Intentar jugadores del lado correcto
+      var lista = somos_local ? (data.jugadores_equipo_local||[]) : (data.jugadores_equipo_visitante||[]);
+
+      // Si vacío, intentar el otro lado como fallback
+      if (!lista.length) {
+        lista = somos_local ? (data.jugadores_equipo_visitante||[]) : (data.jugadores_equipo_local||[]);
+        // Solo usar si el equipo local/visitante coincide con nuestro nombre
+        if (lista.length && simLocal < 0.3 && simVisit < 0.3) lista = [];
+      }
+
+      lista.forEach(function(j) {
+        var nombre = (j.nombre || j.nombre_jugador || '').trim();
+        if (!nombre || nombre.length < 3) return;
+        nombre = nombre.split(' ').map(function(w){
+          return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+        }).join(' ');
+        jugadores[nombre] = (jugadores[nombre]||0) + 1;
+      });
+
+      Utilities.sleep(200);
+    } catch(ex) {}
+  });
+
+  // Filtrar: aparecer al menos 1 vez (>=1 para no perder jugadores poco usados)
+  var lista_final = Object.keys(jugadores)
+    .filter(function(n){ return jugadores[n] >= 1 && n.length > 3; })
+    .sort(function(a,b){ return jugadores[b]-jugadores[a]; });
+
+  Logger.log(eq.nombre + ': ' + lista_final.length + ' jugadores encontrados');
+  lista_final.slice(0,5).forEach(function(n){ Logger.log('  → ' + n + ' (' + jugadores[n] + ')'); });
+
+  // Guardar preservando estados manuales
+  var hoja = obtenerOCrearHoja('Plantilla_' + eq.categoria);
+  var manuales = {};
+  if (hoja.getLastRow() > 1) {
+    var datos_ex = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos_ex.length; i++) {
+      if (datos_ex[i][0]) {
+        manuales[datos_ex[i][0]] = {
+          estado: datos_ex[i][4]||'activo', notas: datos_ex[i][5]||'', manual: datos_ex[i][6]===true||datos_ex[i][6]==='true'
+        };
+      }
+    }
+  }
+
+  hoja.clearContents();
+  hoja.appendRow(['Jugador','Apariciones','Categoria','Actualizado','Estado','Notas','Manual']);
+  formatearCabecera(hoja);
+  lista_final.forEach(function(nombre) {
+    var m = manuales[nombre]||{};
+    hoja.appendRow([nombre, jugadores[nombre], eq.categoria, new Date(), m.estado||'activo', m.notas||'', m.manual||false]);
+  });
+  Object.keys(manuales).forEach(function(nombre) {
+    if (lista_final.indexOf(nombre)===-1 && manuales[nombre].manual) {
+      hoja.appendRow([nombre, 0, eq.categoria, new Date(), manuales[nombre].estado, manuales[nombre].notas||'', true]);
+    }
+  });
+
+  actualizarCachePlantilla(eq.categoria, hoja);
+  Logger.log('Plantilla ' + eq.categoria + ' guardada: ' + lista_final.length + ' jugadores');
+  return lista_final.length;
+}
+
+
+function extraerPlantillaAmateur()         { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[0]); }
+function extraerPlantillaJuvenilA()        { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[1]); }
+function extraerPlantillaJuvenilB()        { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[2]); }
+function extraerPlantillaCadeteA()         { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[3]); }
+function extraerPlantillaCadeteB()         { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[4]); }
+function extraerPlantillaCadeteFemenino()  { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[5]); }
+function extraerPlantillaInfantilA()       { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[6]); }
+function extraerPlantillaInfantilB()       { extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[7]); }
+function extraerPlantillaInfantilFemenino(){ extraerPlantillaDesdeFFCV(EQUIPOS_CLUB_F11[8]); }
+
+function extraerPlantillasTodasCategorias() {
+  Logger.log('=== EXTRAYENDO PLANTILLAS FFCV ===');
+  EQUIPOS_CLUB_F11.forEach(function(eq) {
+    try { extraerPlantillaDesdeFFCV(eq); Utilities.sleep(300); }
+    catch(e) { Logger.log('ERROR plantilla ' + eq.nombre + ': ' + e.message); }
+  });
+  Logger.log('=== PLANTILLAS COMPLETADAS ===');
+}
+
+
+function getPlantillaEquipo(categoria) {
+  try {
+    var ss   = SpreadsheetApp.openById(SS_ID);
+    var hoja = ss.getSheetByName('Plantillas_Cache');
+    if (!hoja || hoja.getLastRow() < 2) return jsonResponse({ok:false, error:'Sin plantillas'});
+    var datos = hoja.getDataRange().getValues();
+    for (var i = 1; i < datos.length; i++) {
+      if (datos[i][0] === categoria) {
+        return jsonResponse({ok:true, jugadores: JSON.parse(datos[i][1]), categoria: categoria});
+      }
+    }
+    return jsonResponse({ok:false, error:'Sin plantilla para ' + categoria});
+  } catch(e) {
+    return jsonResponse({ok:false, error:e.message});
+  }
+}
+
+
+function guardarClasificacion(equipos) {
+  var hoja = obtenerOCrearHoja('Clasificacion_FFCV');
+  hoja.clearContents();
+  hoja.appendRow(['Pos','Club','J','G','E','P','GF','GC','DIF','PT','Actualizado']);
+  formatearCabecera(hoja);
+  equipos.forEach(function(e) {
+    hoja.appendRow([e.pos, e.club, e.J, e.G, e.E, e.P, e.GF, e.GC, e.DIF, e.PT, new Date()]);
+  });
+  Logger.log('Clasificacion guardada: ' + equipos.length + ' equipos');
+}
+
+function guardarProximosPartidos(proximos) {
+  var hoja = obtenerOCrearHoja('Proximos_Partidos');
+  hoja.clearContents();
+  hoja.appendRow(['Jornada','Fecha','Hora','Condicion','Rival','Campo','Actualizado']);
+  formatearCabecera(hoja);
+  proximos.forEach(function(p) {
+    var fecha_fmt2 = p.fecha instanceof Date ? Utilities.formatDate(p.fecha,'Europe/Madrid','dd-MM-yyyy') : (p.fecha||'').toString();
+    var hora_fmt2  = p.hora  instanceof Date ? Utilities.formatDate(p.hora, 'Europe/Madrid','HH:mm')       : (p.hora||'').toString();
+    hoja.appendRow([p.jornada, fecha_fmt2, hora_fmt2, p.es_local ? 'Local' : 'Visitante', p.rival, p.campo, new Date()]);
+  });
+  Logger.log('Proximos partidos guardados: ' + proximos.length);
+}
+
+function guardarInformeRival(partido, partidos_rival, actas) {
+  var hoja = obtenerOCrearHoja('Rival_J' + partido.j_num);
+  hoja.clearContents();
+
+  hoja.appendRow(['PROXIMO PARTIDO J' + partido.j_num]);
+  hoja.appendRow(['Rival', partido.rival]);
+  hoja.appendRow(['Fecha', partido.fecha]);
+  hoja.appendRow(['Hora', partido.hora]);
+  hoja.appendRow(['Campo', partido.campo]);
+  hoja.appendRow(['Condicion', partido.es_local ? 'Local' : 'Visitante']);
+  hoja.appendRow(['']);
+
+  if (partidos_rival.length > 0) {
+    var V  = partidos_rival.filter(function(p) { return p.res === 'V'; }).length;
+    var E  = partidos_rival.filter(function(p) { return p.res === 'E'; }).length;
+    var D  = partidos_rival.filter(function(p) { return p.res === 'D'; }).length;
+    var J  = partidos_rival.length;
+    var gf = partidos_rival.reduce(function(s, p) { return s + p.gf; }, 0);
+    var gc = partidos_rival.reduce(function(s, p) { return s + p.gc; }, 0);
+    var loc = partidos_rival.filter(function(p) { return p.cond === 'L'; });
+    var vis = partidos_rival.filter(function(p) { return p.cond === 'V'; });
+    var vl  = loc.filter(function(p) { return p.res === 'V'; }).length;
+    var vv  = vis.filter(function(p) { return p.res === 'V'; }).length;
+    var u5  = partidos_rival.slice(-5).map(function(p) { return p.res; }).join(' ');
+
+    hoja.appendRow(['ESTADISTICAS GENERALES']);
+    hoja.appendRow(['Partidos', J, 'Victorias', V, 'Empates', E, 'Derrotas', D]);
+    hoja.appendRow(['GF total', gf, 'GF/partido', (gf / J).toFixed(2)]);
+    hoja.appendRow(['GC total', gc, 'GC/partido', (gc / J).toFixed(2)]);
+    hoja.appendRow(['% Victorias', (V / J * 100).toFixed(0) + '%']);
+    hoja.appendRow(['Racha ultimos 5', u5]);
+    hoja.appendRow(['']);
+    hoja.appendRow(['LOCAL vs VISITANTE']);
+    hoja.appendRow(['De local', loc.length + 'J', vl + 'V', 'pct', loc.length > 0 ? (vl / loc.length * 100).toFixed(0) + '%' : '0%']);
+    hoja.appendRow(['De visitante', vis.length + 'J', vv + 'V', 'pct', vis.length > 0 ? (vv / vis.length * 100).toFixed(0) + '%' : '0%']);
+    hoja.appendRow(['']);
+  }
+
+  if (actas && actas.actas_analizadas > 0) {
+    hoja.appendRow(['ANALISIS ACTAS ' + actas.actas_analizadas + ' partidos']);
+    hoja.appendRow(['']);
+    hoja.appendRow(['GOLES MARCADOS POR TRAMO']);
+    ['0-15','16-30','31-45','46-60','61-75','76-90'].forEach(function(t) {
+      hoja.appendRow([t + ' min', actas.goles_por_tramo[t]]);
+    });
+    hoja.appendRow(['']);
+    hoja.appendRow(['GOLES ENCAJADOS POR TRAMO']);
+    ['0-15','16-30','31-45','46-60','61-75','76-90'].forEach(function(t) {
+      hoja.appendRow([t + ' min', actas.encaja_por_tramo[t]]);
+    });
+    hoja.appendRow(['']);
+    hoja.appendRow(['DISCIPLINA']);
+    hoja.appendRow(['Total amarillas', actas.total_amarillas]);
+    hoja.appendRow(['Total rojas', actas.total_rojas]);
+    hoja.appendRow(['']);
+    if (actas.top_amarillas.length > 0) {
+      hoja.appendRow(['JUGADORES MAS AMONESTADOS']);
+      actas.top_amarillas.forEach(function(j) {
+        hoja.appendRow([j.jugador, j.n + ' amarillas' + (j.n >= 2 ? ' REINCIDENTE' : '')]);
+      });
+      hoja.appendRow(['']);
+    }
+    if (actas.reincidentes.length > 0) {
+      hoja.appendRow(['REINCIDENTES 2+ amarillas']);
+      actas.reincidentes.forEach(function(j) {
+        hoja.appendRow([j.jugador, j.n + ' amarillas CUIDADO']);
+      });
+    }
+  }
+
+  hoja.appendRow(['']);
+  hoja.appendRow(['Actualizado', new Date()]);
+  Utilities.sleep(200);
+  formatearCabecera(hoja);
+
+  // Guardar JSON en caché para la app
+  try {
+    var tramos = ['0-15','16-30','31-45','46-60','61-75','76-90'];
+    var J  = partidos_rival.length;
+    var V  = partidos_rival.filter(function(p){ return p.res==='V'; }).length;
+    var E  = partidos_rival.filter(function(p){ return p.res==='E'; }).length;
+    var D  = partidos_rival.filter(function(p){ return p.res==='D'; }).length;
+    var gf = partidos_rival.reduce(function(s,p){ return s+p.gf; }, 0);
+    var gc = partidos_rival.reduce(function(s,p){ return s+p.gc; }, 0);
+    var loc = partidos_rival.filter(function(p){ return p.cond==='L'; });
+    var vis = partidos_rival.filter(function(p){ return p.cond==='V'; });
+    var u5  = partidos_rival.slice(-5).map(function(p){ return p.res; }).join(' ');
+
+    var json_data = {
+      partido: {
+        rival:    partido.rival,
+        fecha:    partido.fecha,
+        hora:     partido.hora,
+        campo:    partido.campo,
+        condicion: partido.es_local ? 'Local' : 'Visitante',
+        jornada:  partido.jornada,
+        j_num:    partido.j_num
+      },
+      estadisticas: {
+        J: J, V: V, E: E, D: D,
+        GF: gf, GC: gc,
+        GF_partido: J > 0 ? Math.round(gf/J*100)/100 : 0,
+        GC_partido: J > 0 ? Math.round(gc/J*100)/100 : 0,
+        pct_victorias: J > 0 ? Math.round(V/J*100) : 0,
+        racha_5: u5
+      },
+      local_visitante: {
+        local: {
+          J: loc.length,
+          V: loc.filter(function(p){ return p.res==='V'; }).length,
+          E: loc.filter(function(p){ return p.res==='E'; }).length,
+          D: loc.filter(function(p){ return p.res==='D'; }).length,
+          pct: loc.length > 0 ? Math.round(loc.filter(function(p){ return p.res==='V'; }).length/loc.length*100) : 0
+        },
+        visitante: {
+          J: vis.length,
+          V: vis.filter(function(p){ return p.res==='V'; }).length,
+          E: vis.filter(function(p){ return p.res==='E'; }).length,
+          D: vis.filter(function(p){ return p.res==='D'; }).length,
+          pct: vis.length > 0 ? Math.round(vis.filter(function(p){ return p.res==='V'; }).length/vis.length*100) : 0
+        }
+      },
+      tramos: {
+        goles:  actas ? actas.goles_por_tramo  : {},
+        encaja: actas ? actas.encaja_por_tramo : {}
+      },
+      goleadores:  actas ? (actas.top_goleadores || []) : [],
+      disciplina: {
+        total_amarillas: actas ? actas.total_amarillas : 0,
+        total_rojas:     actas ? actas.total_rojas     : 0,
+        top_amarillas:   actas ? actas.top_amarillas   : [],
+        reincidentes:    actas ? actas.reincidentes    : []
+      },
+      actas_analizadas: actas ? actas.actas_analizadas : 0,
+      partidos_detalle: partidos_rival
+    };
+
+    // Enriquecer con análisis avanzado
+    var analisis = calcularInformeCompleto(partido, partidos_rival, actas ? {
+      encaja_por_tramo: actas.encaja_por_tramo,
+      goles_por_tramo:  actas.goles_por_tramo,
+      goleadores:       actas.top_goleadores || [],
+      tarjetas: {
+        total_amarillas: actas.total_amarillas,
+        total_rojas:     actas.total_rojas,
+        top_amarillas:   actas.top_amarillas,
+        reincidentes:    actas.reincidentes
+      },
+      actas_analizadas: actas.actas_analizadas
+    } : null);
+
+    json_data.estadisticas    = analisis.estadisticas;
+    json_data.local_visitante = analisis.local_visitante;
+    json_data.primera_segunda = analisis.primera_segunda;
+    json_data.evolucion       = analisis.evolucion;
+    json_data.tramos          = analisis.tramos;
+    json_data.goleadores      = analisis.goleadores;
+    json_data.disciplina      = analisis.disciplina;
+    json_data.patrones        = analisis.patrones;
+    json_data.anomalias       = analisis.anomalias;
+    json_data.conclusiones    = analisis.conclusiones;
+
+    var cache = obtenerOCrearHoja('Rival_Cache');
+    if (cache.getLastRow() === 0) cache.appendRow(['jornada','json_data','timestamp']);
+    var filas_cache = cache.getDataRange().getValues();
+    var found = false;
+    for (var ci = 1; ci < filas_cache.length; ci++) {
+      if (parseInt(filas_cache[ci][0]) === partido.j_num) {
+        cache.getRange(ci+1, 2).setValue(JSON.stringify(json_data));
+        cache.getRange(ci+1, 3).setValue(new Date());
+        found = true; break;
+      }
+    }
+    if (!found) cache.appendRow([partido.j_num, JSON.stringify(json_data), new Date()]);
+  } catch(ce) { Logger.log('Error cache: ' + ce.message); }
+
+  Logger.log('Informe rival J' + partido.j_num + ' guardado');
+}
+
+function testFechasJuvenilB() {
+  var cfg_eq = EQUIPOS_CLUB_F11[2];
+  var calendar = scrapearCalendarioEquipo({
+    id_temp: cfg_eq.id_temp, id_modalidad: cfg_eq.id_modalidad,
+    id_competicion: cfg_eq.id_competicion, id_torneo: cfg_eq.id_torneo,
+    nombre_equipo: cfg_eq.nombre_ffcv, base_url: 'https://resultadosffcv.isquad.es'
+  });
+  var pendientes = calendar.filter(function(p){ return p.es_silos && p.res === 'Pendiente'; });
+  pendientes.forEach(function(p){
+    Logger.log('J' + p.j_num + ' | ' + p.rival + ' | fecha: "' + p.fecha + '"');
+  });
+}
