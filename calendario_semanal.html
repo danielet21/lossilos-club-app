@@ -67,8 +67,8 @@ body{font-family:var(--font);background:var(--gris)}
 .td-dia{text-align:center;font-weight:900;font-size:9px;white-space:nowrap;color:#1A1A1A;line-height:1.4}
 .td-dia .fecha{font-size:10px;color:var(--azul)}
 .td-dia .hora{font-size:9px;color:var(--naranja);font-weight:700}
-.td-equipo{text-align:center;font-size:11.5px;font-weight:700;color:#333;text-transform:capitalize}
-.td-equipo.nuestro{color:#0A1F3D;font-weight:900;font-size:11.5px;letter-spacing:.3px;text-transform:uppercase}
+.td-equipo{text-align:center;font-size:12px;font-weight:700;color:#333;text-transform:capitalize}
+.td-equipo.nuestro{color:#0A1F3D;font-weight:900;font-size:12px;letter-spacing:.3px;text-transform:uppercase}
 .td-campo{text-align:center;font-size:7.5px;line-height:1.3}
 .td-campo.propio{background:#FFF9C4;color:#856D00;font-weight:700}
 .td-char{text-align:center;font-size:7.5px;font-weight:700;color:var(--verde)}
@@ -244,8 +244,13 @@ function filaTabla(eq, partido) {
       '<td></td></tr>';
   }
   var es_local  = partido.condicion === 'Local';
-  var local     = es_local ? '<span class="nuestro">LOS SILOS CF-PROMISES VALENCIA</span>' : (partido.rival||'');
-  var visitante = es_local ? (partido.rival||'') : '<span class="nuestro">LOS SILOS CF-PROMISES VALENCIA</span>';
+  var SILOS = 'LOS SILOS CF-PROMISES VALENCIA';
+  // Limpiar rival — quitar referencia a Los Silos si viene el partido completo
+  var rival_raw = (partido.rival||'');
+  var rival_limpio = rival_raw.replace(/Los Silos C\.F\.[^-]*-\s*/gi,'').replace(/^\s*[-·]\s*/,'').trim();
+  if (!rival_limpio || rival_limpio.length < 3) rival_limpio = rival_raw;
+  var local     = es_local ? SILOS : rival_limpio;
+  var visitante = es_local ? rival_limpio : SILOS;
   var campo_cls = esCampoPropio(partido.campo) ? 'td-campo propio' : 'td-campo';
 
   var fin_sem = esDiaDestacado(partido.fecha) ? ' fin-semana' : '';
