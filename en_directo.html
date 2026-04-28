@@ -317,8 +317,18 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+function iniciarBtn(btn) {
+  var cat = btn.getAttribute('data-cat');
+  iniciar(cat);
+}
+
 async function iniciar(cat) {
-  var p = pmap[cat]; if (!p) return;
+  var p = pmap[cat];
+  if (!p) {
+    // pmap vacío — buscar en datos directamente
+    for (var i=0; i<datos.length; i++) { if (datos[i].categoria===cat) { p=datos[i]; break; } }
+  }
+  if (!p) { alert('Error: partido no encontrado'); return; }
   try {
     var params = '?action=iniciar_directo&categoria='+encodeURIComponent(p.categoria)+'&cat='+encodeURIComponent(p.cat)+'&rival='+encodeURIComponent(p.rival)+'&es_local='+(p.es_local?'true':'false')+'&hora='+encodeURIComponent(p.hora);
     await fetch(URL+params);
