@@ -96,12 +96,14 @@ function renderizar() {
   if (filtro === 'vivo') lista = lista.filter(function(p){ return p.estado==='vivo'; });
   if (filtro === 'hoy')  lista = lista.filter(function(p){ return p.es_hoy; });
 
+  var ORDEN = ['amateur','juvenil_a','juvenil_b','cadete_a','cadete_b','cadete_femenino','infantil_a','infantil_b','infantil_femenino','alevin_a','alevin_b','alevin_femenino','benjamin_a','benjamin_b','prebenjamin_a','prebenjamin_b'];
+
   lista.sort(function(a,b){
-    var o = {vivo:0,finalizado:1,pendiente:2};
-    var oa = o[a.estado]!==undefined?o[a.estado]:2;
-    var ob = o[b.estado]!==undefined?o[b.estado]:2;
-    if (oa!==ob) return oa-ob;
-    return (a.diff_dias||0)-(b.diff_dias||0);
+    var oa = {vivo:0,finalizado:1,pendiente:2};
+    var ea = oa[a.estado]!==undefined?oa[a.estado]:2;
+    var eb = oa[b.estado]!==undefined?oa[b.estado]:2;
+    if (ea!==eb) return ea-eb;
+    return (ORDEN.indexOf(a.categoria)||99)-(ORDEN.indexOf(b.categoria)||99);
   });
 
   if (!lista.length) {
