@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -124,7 +123,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 <div class="body" id="form-body">
 
   <!-- INFO PARTIDO -->
-
   <div class="sec-label">Datos del partido</div>
   <div class="card"><div class="card-body">
     <div class="grid-2">
@@ -146,7 +144,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- SISTEMA TACTICO -->
-
   <div class="sec-label">Sistema tactico rival</div>
   <div class="card"><div class="card-body">
     <div class="field"><label>Sistema</label>
@@ -169,7 +166,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- CAMPO VISUAL -->
-
   <div class="sec-label">Posicionamiento en campo</div>
   <div class="card"><div class="card-body">
     <div class="pitch-container">
@@ -190,7 +186,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- GOLES -->
-
   <div class="sec-label">Goles del partido</div>
   <div class="card"><div class="card-body" style="padding-bottom:12px">
     <div id="goles-list"></div>
@@ -198,7 +193,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- TARJETAS -->
-
   <div class="sec-label">Tarjetas</div>
   <div class="card"><div class="card-body" style="padding-bottom:12px">
     <div id="tarjetas-list"></div>
@@ -209,7 +203,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- JUGADORES DESTACADOS -->
-
   <div class="sec-label">Jugadores a vigilar</div>
   <div class="card"><div class="card-body">
     <div id="jugadores-list"></div>
@@ -217,7 +210,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- ANALISIS POR TRAMOS -->
-
   <div class="sec-label">Momentos peligrosos detectados</div>
   <div class="card"><div class="card-body">
     <p style="font-size:12px;color:var(--texto2);margin-bottom:8px">Tramos donde el rival es peligroso atacando:</p>
@@ -241,7 +233,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- CARACTERÍSTICAS -->
-
   <div class="sec-label">Caracteristicas del rival</div>
   <div class="card"><div class="card-body">
     <div class="toggle-row">
@@ -279,7 +270,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- VALORACIONES -->
-
   <div class="sec-label">Valoraciones generales</div>
   <div class="card"><div class="card-body">
     <div class="rating-row"><span class="rating-lbl">Nivel general del equipo</span><div class="rating-stars" id="r-nivel"></div></div>
@@ -290,7 +280,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- FORTALEZAS / DEBILIDADES -->
-
   <div class="sec-label">Analisis DAFO</div>
   <div class="card"><div class="card-body">
     <div class="field"><label>💪 Fortalezas del rival</label><textarea id="s-fortalezas" rows="3" placeholder="Que hacen bien, sus armas principales..."></textarea></div>
@@ -300,7 +289,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div></div>
 
   <!-- OBSERVACIONES FINALES -->
-
   <div class="sec-label">Observaciones finales del scout</div>
   <div class="card"><div class="card-body">
     <div class="field"><label>Notas generales</label><textarea id="s-notas" rows="5" placeholder="Todo lo que hayas observado que no encaje en los apartados anteriores..."></textarea></div>
@@ -313,11 +301,10 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
     </div>
   </div></div>
 
-<button class="btn-main btn-verde" onclick="guardarScouting()" style="margin-bottom:12px">✅ Guardar informe</button>
-<button class="btn-main btn-outline" onclick="imprimirPlantilla()">🖨️ Imprimir plantilla en blanco</button>
+  <button class="btn-main btn-verde" onclick="guardarScouting()" style="margin-bottom:12px">✅ Guardar informe</button>
+  <button class="btn-main btn-outline" onclick="imprimirPlantilla()">🖨️ Imprimir plantilla en blanco</button>
 
   <!-- EXITO -->
-
   <div class="success-wrap" id="success-wrap">
     <div class="success-icon">✅</div>
     <h2 style="font-size:20px;font-weight:700;color:var(--verde);margin-bottom:8px">Informe guardado</h2>
@@ -329,7 +316,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 
 <script>
 var WEBAPP_URL = localStorage.getItem('gscript_url') ||
-  'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
+  'https://script.google.com/macros/s/AKfycby5O6ljy1J-tk7nOo0PNCTwE05sbGvHzHAV4JbUOOYONF8qUZAB5xtospAXpP7r-PFn/exec';
 var cfg = JSON.parse(localStorage.getItem('silos_sesion') || '{}');
 var valoracion = 7;
 var golCount = 0, tarjCount = 0, jugCount = 0;
@@ -520,6 +507,5 @@ function imprimirPlantilla() {
     '&jornada=' + (document.getElementById('s-jornada').value||''), '_blank');
 }
 </script>
-
 </body>
 </html>

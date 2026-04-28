@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -31,60 +30,59 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 
 /* FILTROS */
 .filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.filtro-btn{padding:6px 12px;border-radius:20px;border:.5px solid var(–borde);background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:var(–texto2);font-family:var(–font)}
-.filtro-btn.on{background:var(–azul);color:#fff;border-color:var(–azul)}
+.filtro-btn{padding:6px 12px;border-radius:20px;border:.5px solid var(--borde);background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:var(--texto2);font-family:var(--font)}
+.filtro-btn.on{background:var(--azul);color:#fff;border-color:var(--azul)}
 
 /* JUGADOR CARD */
-.jugador-card{background:#fff;border-radius:var(–radio-sm);border:.5px solid var(–borde);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.jugador-card{background:#fff;border-radius:var(--radio-sm);border:.5px solid var(--borde);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
 .jugador-card.baja_def{opacity:.4}
 .jugador-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
-.av-activo{background:var(–verde)}
-.av-cedido_arriba{background:var(–azul2)}
-.av-baja_temporal{background:var(–naranja)}
+.av-activo{background:var(--verde)}
+.av-cedido_arriba{background:var(--azul2)}
+.av-baja_temporal{background:var(--naranja)}
 .av-baja_def{background:#999}
-.av-solo_entrena{background:var(–amarillo)}
+.av-solo_entrena{background:var(--amarillo)}
 .jugador-info{flex:1;min-width:0}
 .jugador-nombre{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jugador-meta{font-size:11px;color:var(–texto3);margin-top:2px}
+.jugador-meta{font-size:11px;color:var(--texto3);margin-top:2px}
 .badge-estado{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:4px;display:inline-block}
-.badge-activo{background:var(–verde-c);color:var(–verde)}
-.badge-cedido_arriba{background:var(–azul-c);color:var(–azul2)}
-.badge-baja_temporal{background:var(–naranja-c);color:var(–naranja)}
+.badge-activo{background:var(--verde-c);color:var(--verde)}
+.badge-cedido_arriba{background:var(--azul-c);color:var(--azul2)}
+.badge-baja_temporal{background:var(--naranja-c);color:var(--naranja)}
 .badge-baja_def{background:#eee;color:#999}
-.badge-solo_entrena{background:var(–amarillo-c);color:var(–amarillo)}
-.badge-manual{background:var(–azul-c);color:var(–azul2);font-size:9px;margin-left:4px}
-.btn-editar{width:34px;height:34px;border-radius:50%;border:.5px solid var(–borde);background:var(–gris);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.badge-solo_entrena{background:var(--amarillo-c);color:var(--amarillo)}
+.badge-manual{background:var(--azul-c);color:var(--azul2);font-size:9px;margin-left:4px}
+.btn-editar{width:34px;height:34px;border-radius:50%;border:.5px solid var(--borde);background:var(--gris);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#0007;z-index:100;display:flex;align-items:flex-end;justify-content:center}
 .modal-overlay.hidden{display:none}
 .modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;max-width:500px}
 .modal h2{font-size:17px;font-weight:700;margin-bottom:4px}
-.modal-nombre{font-size:13px;color:var(–texto3);margin-bottom:16px}
+.modal-nombre{font-size:13px;color:var(--texto3);margin-bottom:16px}
 .estado-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.estado-opt{padding:11px;border-radius:var(–radio-sm);border:1.5px solid var(–borde);cursor:pointer;text-align:center;font-size:12px;font-weight:700;transition:all .15s}
-.estado-opt.sel{border-color:var(–azul);background:var(–azul-c);color:var(–azul)}
-.notas-input{width:100%;padding:11px 14px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:14px;font-family:var(–font);resize:none;outline:none;margin-bottom:12px}
-.notas-input:focus{border-color:var(–azul2)}
+.estado-opt{padding:11px;border-radius:var(--radio-sm);border:1.5px solid var(--borde);cursor:pointer;text-align:center;font-size:12px;font-weight:700;transition:all .15s}
+.estado-opt.sel{border-color:var(--azul);background:var(--azul-c);color:var(--azul)}
+.notas-input{width:100%;padding:11px 14px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:14px;font-family:var(--font);resize:none;outline:none;margin-bottom:12px}
+.notas-input:focus{border-color:var(--azul2)}
 .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn-modal{padding:13px;border-radius:var(–radio-sm);border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:var(–font)}
-.btn-modal-cancel{background:var(–gris);color:var(–texto2)}
-.btn-modal-ok{background:var(–azul);color:#fff}
+.btn-modal{padding:13px;border-radius:var(--radio-sm);border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.btn-modal-cancel{background:var(--gris);color:var(--texto2)}
+.btn-modal-ok{background:var(--azul);color:#fff}
 
 /* AÑADIR */
-.add-card{background:#fff;border-radius:var(–radio-sm);border:1.5px dashed var(–borde);padding:14px;margin-bottom:12px}
+.add-card{background:#fff;border-radius:var(--radio-sm);border:1.5px dashed var(--borde);padding:14px;margin-bottom:12px}
 .add-row{display:flex;gap:8px;align-items:center}
-.add-input{flex:1;padding:11px 14px;border:.5px solid var(–borde);border-radius:var(–radio-sm);font-size:14px;font-family:var(–font);outline:none}
-.add-input:focus{border-color:var(–azul2)}
-.btn-add{padding:11px 16px;border-radius:var(–radio-sm);border:none;background:var(–verde);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(–font);flex-shrink:0}
+.add-input{flex:1;padding:11px 14px;border:.5px solid var(--borde);border-radius:var(--radio-sm);font-size:14px;font-family:var(--font);outline:none}
+.add-input:focus{border-color:var(--azul2)}
+.btn-add{padding:11px 16px;border-radius:var(--radio-sm);border:none;background:var(--verde);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);flex-shrink:0}
 
-.empty{text-align:center;color:var(–texto3);padding:30px;font-size:13px}
-.loading{text-align:center;color:var(–texto3);padding:40px}
+.empty{text-align:center;color:var(--texto3);padding:30px;font-size:13px}
+.loading{text-align:center;color:var(--texto3);padding:40px}
 
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;width:20px;height:20px;border:2px solid #eee;border-top-color:var(–azul);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid #eee;border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
 </style>
-
 </head>
 <body>
 
@@ -99,7 +97,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 <div class="body">
 
   <!-- AÑADIR JUGADOR -->
-
   <div class="sec-label">Añadir jugador</div>
   <div class="add-card">
     <div class="add-row">
@@ -110,7 +107,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
   </div>
 
   <!-- FILTROS -->
-
   <div class="sec-label">Jugadores</div>
   <div class="filtros">
     <button class="filtro-btn on" onclick="setFiltro('todos',this)">Todos</button>
@@ -126,7 +122,6 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 </div>
 
 <!-- MODAL EDITAR -->
-
 <div class="modal-overlay hidden" id="modal-overlay" onclick="cerrarModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <h2>Editar jugador</h2>
@@ -147,7 +142,7 @@ body{font-family:var(--font);background:var(--gris);color:var(--texto);min-heigh
 </div>
 
 <script>
-var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzv1FINh9zBF7fjQs0GOnIr-wSfRRYnXxL46bmCv1TKbqqYV48rgo0yJD6p5LrPxS8D/exec';
+var WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby5O6ljy1J-tk7nOo0PNCTwE05sbGvHzHAV4JbUOOYONF8qUZAB5xtospAXpP7r-PFn/exec';
 var cfg = JSON.parse(localStorage.getItem('silos_sesion') || '{}');
 var categoria = new URLSearchParams(window.location.search).get('categoria') || cfg.equipo || 'amateur';
 var filtroActual = 'todos';
@@ -288,6 +283,5 @@ function mostrarError(msg) {
   document.getElementById('lista-jugadores').innerHTML = '<div class="empty">⚠️ ' + (msg||'Error') + '</div>';
 }
 </script>
-
 </body>
 </html>
