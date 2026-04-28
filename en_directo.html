@@ -226,6 +226,19 @@ function renderPartidoCard(p) {
   '</div>';
 }
 
+async function iniciarPartidoKey(categoria) {
+  var p = (window._partidos_map||{})[categoria];
+  if (!p) return;
+  try {
+    await fetch(WEBAPP_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({tipo:'iniciar_partido_directo', categoria:p.categoria, cat:p.cat, rival:p.rival, es_local:p.es_local, hora:p.hora})
+    });
+    setTimeout(cargar, 800);
+  } catch(e) { alert('Error al iniciar'); }
+}
+
 async function iniciarPartido(categoria, cat, rival, es_local, hora) {
   try {
     await fetch(WEBAPP_URL, {
