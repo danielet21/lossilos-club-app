@@ -320,6 +320,7 @@ function escHtml(s) {
 
 function iniciarBtn(btn) {
   var cat = btn.getAttribute('data-cat');
+  alert('Iniciando: ' + cat + ' | rol: ' + (cfg.rol||'sin rol') + ' | datos: ' + datos.length);
   iniciar(cat);
 }
 
