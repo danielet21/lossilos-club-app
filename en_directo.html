@@ -320,23 +320,27 @@ function escHtml(s) {
 
 function iniciarBtn(btn) {
   var cat = btn.getAttribute('data-cat');
-  alert('Iniciando: ' + cat + ' | rol: ' + (cfg.rol||'sin rol') + ' | datos: ' + datos.length);
   iniciar(cat);
 }
 
 async function iniciar(cat) {
-  var p = pmap[cat];
-  if (!p) {
-    // pmap vacío — buscar en datos directamente
-    for (var i=0; i<datos.length; i++) { if (datos[i].categoria===cat) { p=datos[i]; break; } }
-  }
-  if (!p) { alert('Error: partido no encontrado'); return; }
+  // Buscar siempre en datos[] — más fiable que pmap
+  var p = null;
+  for (var i=0; i<datos.length; i++) { if (datos[i].categoria===cat) { p=datos[i]; break; } }
+  if (!p) { alert('Sin datos para '+cat+'. Recarga la página.'); return; }
   try {
-    var params = '?action=iniciar_directo&categoria='+encodeURIComponent(p.categoria)+'&cat='+encodeURIComponent(p.cat)+'&rival='+encodeURIComponent(p.rival)+'&es_local='+(p.es_local?'true':'false')+'&hora='+encodeURIComponent(p.hora);
-    await fetch(URL+params);
+    var params = '?action=iniciar_directo'
+      +'&categoria='+encodeURIComponent(cat)
+      +'&cat='+encodeURIComponent(p.cat||cat)
+      +'&rival='+encodeURIComponent(p.rival||'')
+      +'&es_local='+(p.es_local?'true':'false')
+      +'&hora='+encodeURIComponent(p.hora||'');
+    var resp = await fetch(URL+params);
+    var json = await resp.json();
+    if (!json.ok) { alert('Error del servidor: '+(json.error||'desconocido')); return; }
     iniciarTimer(cat);
     setTimeout(cargar, 800);
-  } catch(e){ alert('Error al iniciar'); }
+  } catch(e){ alert('Error de red: '+e.message); }
 }
 
 async function finalizar(cat) {
