@@ -83,6 +83,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     <button class="fb" onclick="setF('vivo',this)">🔴 En juego</button>
     <button class="fb" onclick="setF('hoy',this)">📅 Hoy</button>
   </div>
+  <div id="debug" style="font-size:10px;color:#555;margin-bottom:8px"></div>
   <div id="lista">Cargando...</div>
 </div>
 <script>
@@ -363,6 +364,8 @@ function setF(f,btn) {
   renderizar();
 }
 
+var dbg = document.getElementById('debug');
+if (dbg) dbg.textContent = 'Rol: '+(cfg.rol||'sin sesion')+' | Equipo: '+(cfg.equipo||'-');
 cargar();
 setInterval(cargar, 5000);
 </script>
