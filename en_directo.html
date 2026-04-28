@@ -155,6 +155,15 @@ function renderizar() {
     return;
   }
 
+  // Auto-iniciar timers para partidos ya en vivo
+  lista.forEach(function(p) {
+    if (p.estado === 'vivo' && !timers[p.categoria]) {
+      var cfg_t = TIEMPOS[p.categoria] || {partes:2, min:45};
+      timers[p.categoria] = {secs:0, parte:1, corriendo:false, finParte:false, maxSecs: cfg_t.min*60};
+      playTimer(p.categoria);
+    }
+  });
+
   var html = '';
   for (var i=0; i<lista.length; i++) html += card(lista[i]);
   document.getElementById('lista').innerHTML = html;
@@ -341,6 +350,24 @@ async function iniciar(cat) {
     iniciarTimer(cat);
     setTimeout(cargar, 800);
   } catch(e){ alert('Error de red: '+e.message); }
+}
+
+async function anularGol(cat, tipo) {
+  if (!confirm('¿Anular el gol?')) return;
+  try {
+    var t = timers[cat];
+    var min = t ? String(Math.floor(t.secs/60)) : '?';
+    await fetch(URL+'?action=evento_directo&categoria='+encodeURIComponent(cat)+'&evento=anular_'+tipo+'&minuto='+encodeURIComponent(min)+'&usuario='+encodeURIComponent(cfg.nombre||''));
+    setTimeout(cargar, 800);
+  } catch(e){ alert('Error'); }
+}
+
+async function resetMarcador(cat) {
+  if (!confirm('¿Reiniciar marcador a 0-0?')) return;
+  try {
+    await fetch(URL+'?action=evento_directo&categoria='+encodeURIComponent(cat)+'&evento=reset&minuto=0&usuario='+encodeURIComponent(cfg.nombre||''));
+    setTimeout(cargar, 800);
+  } catch(e){ alert('Error'); }
 }
 
 async function finalizar(cat) {
