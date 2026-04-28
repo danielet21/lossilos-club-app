@@ -198,10 +198,15 @@ function renderPartidoCard(p) {
     '</div>';
   }
 
+  var dias_txt = p.diff_dias === 0 ? 'HOY' : p.diff_dias === 1 ? 'MAÑANA' : p.diff_dias === -1 ? 'AYER' : p.fecha;
+
   return '<div class="partido-card">' +
     '<div class="partido-header">' +
       '<span class="partido-cat">'+p.cat+'</span>' +
-      '<span class="partido-estado '+estadoClass+'">'+estadoTxt+'</span>' +
+      '<div style="display:flex;gap:6px;align-items:center">' +
+        '<span style="font-size:10px;color:var(--texto3)">'+dias_txt+'</span>' +
+        '<span class="partido-estado '+estadoClass+'">'+estadoTxt+'</span>' +
+      '</div>' +
     '</div>' +
     '<div class="partido-main">' +
       '<div class="equipo-bloque">' +
@@ -219,6 +224,29 @@ function renderPartidoCard(p) {
     eventos_html +
     botones_html +
   '</div>';
+}
+
+async function iniciarPartido(categoria, cat, rival, es_local, hora) {
+  try {
+    await fetch(WEBAPP_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({tipo:'iniciar_partido_directo', categoria:categoria, cat:cat, rival:rival, es_local:es_local, hora:hora})
+    });
+    setTimeout(cargar, 800);
+  } catch(e) { alert('Error al iniciar'); }
+}
+
+async function finalizarPartido(categoria) {
+  if (!confirm('¿Finalizar el partido?')) return;
+  try {
+    await fetch(WEBAPP_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({tipo:'finalizar_partido_directo', categoria:categoria})
+    });
+    setTimeout(cargar, 800);
+  } catch(e) { alert('Error al finalizar'); }
 }
 
 async function registrarEvento(categoria, tipo) {
